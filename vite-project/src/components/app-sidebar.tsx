@@ -129,6 +129,19 @@ const data = {
 }
 
 export function AppSidebar({ onPanelChange, ...props }: React.ComponentProps<typeof Sidebar> & { onPanelChange?: (panel: string) => void }) {
+  const userData = localStorage.getItem("firebaseUser");
+  const user = userData
+    ? {
+        name: JSON.parse(userData).displayName || "Usuario",
+        email: JSON.parse(userData).email || "m@example.com",
+        avatar: JSON.parse(userData).photoURL || "/avatars/shadcn.jpg",
+      }
+    : {
+        name: "Usuario",
+        email: "m@example.com",
+        avatar: "/avatars/shadcn.jpg",
+      };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -152,7 +165,7 @@ export function AppSidebar({ onPanelChange, ...props }: React.ComponentProps<typ
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )

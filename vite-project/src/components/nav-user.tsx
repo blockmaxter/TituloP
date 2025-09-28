@@ -5,6 +5,7 @@ import {
   MoreVerticalIcon,
   UserCircleIcon,
 } from "lucide-react"
+import { getAuth, signOut } from "firebase/auth"
 
 import {
   Avatar,
@@ -26,6 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import app from "@/lib/firebase"
 
 export function NavUser({
   user,
@@ -88,7 +90,13 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                signOut(getAuth(app))
+                localStorage.removeItem("firebaseUser")
+                window.location.reload()
+              }}
+            >
               <LogOutIcon />
               Cerrar sesión
             </DropdownMenuItem>
