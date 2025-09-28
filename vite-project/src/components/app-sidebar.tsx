@@ -24,6 +24,8 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarGroup,
+  SidebarGroupLabel,
 } from "@/components/ui/sidebar"
 
 // This is sample data.
@@ -148,11 +150,7 @@ const data = {
       url: "#",
       icon: PieChart,
     },
-    {
-      name: "Viajes",
-      url: "#",
-      icon: Map,
-    },
+      // ...existing code...
   ],
 }
 
@@ -164,7 +162,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <SidebarGroup>
+          <SidebarGroupLabel>Proyectos</SidebarGroupLabel>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
