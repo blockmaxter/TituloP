@@ -53,11 +53,6 @@ const data = {
       url: "#",
       icon: BarChartIcon,
     },
-    {
-      title: "Formulario",
-      url: "#",
-      icon: FolderIcon,
-    },
   ],
   navClouds: [
     {
@@ -126,14 +121,14 @@ const data = {
       icon: DatabaseIcon,
     },
     {
-      name: "Reportes",
+      name: "Formulario",
       url: "#",
-      icon: ClipboardListIcon,
+      icon: FolderIcon,
     },
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ onPanelChange, ...props }: React.ComponentProps<typeof Sidebar> & { onPanelChange?: (panel: string) => void }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -152,8 +147,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        <NavMain items={data.navMain} onPanelChange={onPanelChange} />
+  <NavDocuments items={data.documents} onPanelChange={onPanelChange} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

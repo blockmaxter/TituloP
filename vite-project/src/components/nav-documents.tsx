@@ -23,14 +23,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavDocuments({
-  items,
-}: {
+export function NavDocuments({ items, onPanelChange }: {
   items: {
     name: string
     url: string
     icon: LucideIcon
-  }[]
+  }[],
+  onPanelChange?: (panel: string) => void
 }) {
   const { isMobile } = useSidebar()
 
@@ -40,7 +39,7 @@ export function NavDocuments({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild onClick={() => onPanelChange && onPanelChange(item.name.toLowerCase())}>
               <a href={item.url}>
                 <item.icon />
                 <span>{item.name}</span>
