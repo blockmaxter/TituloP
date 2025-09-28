@@ -34,15 +34,15 @@ export default function Page() {
         )
       case "ciclo de vida":
         return (
-          <div className="bg-blue-100 min-h-[300px] rounded-xl flex items-center justify-center text-xl font-bold">Panel Ciclo de vida</div>
+          <div className="bg-blue-100 min-h-[300px] rounded-xl" />
         )
       case "analítica":
         return (
-          <div className="bg-blue-200 min-h-[300px] rounded-xl flex items-center justify-center text-xl font-bold">Panel Analítica</div>
+          <div className="bg-blue-200 min-h-[300px] rounded-xl" />
         )
       case "formulario":
         return (
-          <div className="bg-blue-300 min-h-[300px] rounded-xl flex items-center justify-center text-xl font-bold">Panel Formulario</div>
+          <div className="bg-blue-300 min-h-[300px] rounded-xl" />
         )
       case "biblioteca de datos":
         return <DataTableBiblioteca />
