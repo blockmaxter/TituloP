@@ -1,6 +1,8 @@
-import { MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react"
+"use client"
 
-import { Button } from "@/components/ui/button"
+import * as React from "react"
+import { LucideIcon } from "lucide-react"
+
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,25 +11,27 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-export function NavMain({
+export function NavSecondary({
   items,
+  ...props
 }: {
   items: {
     title: string
     url: string
-    icon?: LucideIcon
+    icon: LucideIcon
   }[]
-}) {
+} & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
-    <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
-  <div className="px-4 py-2 text-lg font-bold">Panel de datos</div>
+    <SidebarGroup {...props}>
+      <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
+              <SidebarMenuButton asChild>
+                <a href={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

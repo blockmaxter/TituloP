@@ -1,175 +1,174 @@
-"use client"
-
 import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  ArrowUpCircleIcon,
+  BarChartIcon,
+  CameraIcon,
+  ClipboardListIcon,
+  DatabaseIcon,
+  FileCodeIcon,
+  FileIcon,
+  FileTextIcon,
+  FolderIcon,
+  HelpCircleIcon,
+  LayoutDashboardIcon,
+  ListIcon,
+  SearchIcon,
+  SettingsIcon,
+  UsersIcon,
 } from "lucide-react"
 
+import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
-  SidebarGroup,
-  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
 const data = {
   user: {
-    name: "shadcn",
+    name: "Usuario",
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Usuario1.",
-      logo: GalleryVerticalEnd,
-      plan: "Empresarial",
-    },
-    {
-      name: "Usuario2.",
-      logo: AudioWaveform,
-      plan: "Emprendedor",
-    },
-    {
-      name: "Usuario3.",
-      logo: Command,
-      plan: "Gratis",
-    },
-  ],
   navMain: [
     {
-      title: "Zona de pruebas",
+      title: "Dashboard",
       url: "#",
-      icon: SquareTerminal,
+      icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Ciclo de vida",
+      url: "#",
+      icon: ListIcon,
+    },
+    {
+      title: "Analítica",
+      url: "#",
+      icon: BarChartIcon,
+    },
+    {
+      title: "Proyectos",
+      url: "#",
+      icon: FolderIcon,
+    },
+  ],
+  navClouds: [
+    {
+      title: "Captura",
+      icon: CameraIcon,
       isActive: true,
+      url: "#",
       items: [
         {
-          title: "Historial",
+          title: "Propuestas activas",
           url: "#",
         },
         {
-          title: "Favoritos",
-          url: "#",
-        },
-        {
-          title: "Configuración",
+          title: "Archivadas",
           url: "#",
         },
       ],
     },
     {
-      title: "Modelos",
+      title: "Propuesta",
+      icon: FileTextIcon,
       url: "#",
-      icon: Bot,
       items: [
         {
-          title: "Génesis",
+          title: "Propuestas activas",
           url: "#",
         },
         {
-          title: "Explorador",
-          url: "#",
-        },
-        {
-          title: "Cuántico",
+          title: "Archivadas",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentación",
+      title: "Prompts",
+      icon: FileCodeIcon,
       url: "#",
-      icon: BookOpen,
       items: [
         {
-          title: "Introducción",
+          title: "Propuestas activas",
           url: "#",
         },
         {
-          title: "Comenzar",
-          url: "#",
-        },
-        {
-          title: "Tutoriales",
-          url: "#",
-        },
-        {
-          title: "Registro de cambios",
+          title: "Archivadas",
           url: "#",
         },
       ],
     },
+  ],
+  navSecondary: [
     {
       title: "Configuración",
       url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Equipo",
-          url: "#",
-        },
-        {
-          title: "Facturación",
-          url: "#",
-        },
-        {
-          title: "Límites",
-          url: "#",
-        },
-      ],
+      icon: SettingsIcon,
+    },
+    {
+      title: "Ayuda",
+      url: "#",
+      icon: HelpCircleIcon,
+    },
+    {
+      title: "Buscar",
+      url: "#",
+      icon: SearchIcon,
     },
   ],
-  projects: [
+  documents: [
     {
-      name: "Ingeniería de diseño",
+      name: "Biblioteca de datos",
       url: "#",
-      icon: Frame,
+      icon: DatabaseIcon,
     },
     {
-      name: "Ventas y marketing",
+      name: "Reportes",
       url: "#",
-      icon: PieChart,
+      icon: ClipboardListIcon,
     },
-      // ...existing code...
+    {
+      name: "Asistente de texto",
+      url: "#",
+      icon: FileIcon,
+    },
   ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a href="#">
+                <ArrowUpCircleIcon className="h-5 w-5" />
+                <span className="text-base font-semibold">Utem Datos</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <SidebarGroup>
-          <SidebarGroupLabel>Proyectos</SidebarGroupLabel>
-        </SidebarGroup>
+        <NavDocuments items={data.documents} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
