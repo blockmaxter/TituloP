@@ -160,7 +160,7 @@ button:focus-visible {
 
   --radius: 0.625rem;
 
-  --background: oklch(1 0 0);
+  --background: #1565c0; /* azul */
 
   --foreground: oklch(0.145 0 0);
 

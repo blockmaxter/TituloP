@@ -25,10 +25,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavProjects({
-  projects,
+export function NavFormulario({
+  formularios,
 }: {
-  projects: {
+  formularios: {
     name: string
     url: string
     icon: LucideIcon
@@ -38,9 +38,9 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-  <SidebarGroupLabel>Proyectos</SidebarGroupLabel>
+  <SidebarGroupLabel>Formulario</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
+  {formularios.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
               <a href={item.url}>
@@ -62,27 +62,21 @@ export function NavProjects({
               >
                 <DropdownMenuItem>
                   <Folder className="text-muted-foreground" />
-                  <span>Ver proyecto</span>
+                  <span>Ver formulario</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Forward className="text-muted-foreground" />
-                  <span>Compartir proyecto</span>
+                  <span>Compartir formulario</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Trash2 className="text-muted-foreground" />
-                  <span>Eliminar proyecto</span>
+                  <span>Eliminar formulario</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
-        <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontal className="text-sidebar-foreground/70" />
-            <span>Más</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   )

@@ -54,7 +54,7 @@ const data = {
       icon: BarChartIcon,
     },
     {
-      title: "Proyectos",
+      title: "Formulario",
       url: "#",
       icon: FolderIcon,
     },
@@ -114,11 +114,6 @@ const data = {
       icon: SettingsIcon,
     },
     {
-      title: "Ayuda",
-      url: "#",
-      icon: HelpCircleIcon,
-    },
-    {
       title: "Buscar",
       url: "#",
       icon: SearchIcon,
@@ -134,11 +129,6 @@ const data = {
       name: "Reportes",
       url: "#",
       icon: ClipboardListIcon,
-    },
-    {
-      name: "Asistente de texto",
-      url: "#",
-      icon: FileIcon,
     },
   ],
 }

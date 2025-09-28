@@ -28,12 +28,7 @@ export default function Page() {
             />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                  Construyendo tu aplicación
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {/* Eliminado 'Construyendo tu aplicación' */}
                 <BreadcrumbItem>
                 <BreadcrumbPage>Obtención de datos</BreadcrumbPage>
                 </BreadcrumbItem>
