@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { getAuth, signOut, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import app from '../lib/firebase';
+import { useState, useEffect } from 'react';
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
@@ -15,8 +15,14 @@ export default function LoginPage() {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        localStorage.setItem("firebaseUser", JSON.stringify(user));
-        window.location.reload();
+        if (user.email && user.email.endsWith("@utem.cl")) {
+          localStorage.setItem("firebaseUser", JSON.stringify(user));
+          window.location.reload();
+        } else {
+          signOut(auth);
+          localStorage.removeItem("firebaseUser");
+          setError("Acceso denegado: solo usuarios con correo institucional @utem.cl pueden ingresar. Si tienes dudas, contacta a soporte.");
+        }
       }
     });
   }, []);
