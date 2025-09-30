@@ -7,6 +7,16 @@
 */
 @custom-variant dark (&:is(.dark *));
 
+/* Scroll suave para toda la página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ajustar el offset para el header fijo */
+section {
+  scroll-margin-top: 4rem;
+}
+
 /*:root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

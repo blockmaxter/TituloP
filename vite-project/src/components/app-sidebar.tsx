@@ -128,7 +128,7 @@ const data = {
   ],
 }
 
-export function AppSidebar({ onPanelChange, isAuthenticated, onLoginRequest, ...props }: React.ComponentProps<typeof Sidebar> & { onPanelChange?: (panel: string) => void; isAuthenticated?: boolean; onLoginRequest?: () => void }) {
+export function AppSidebar({ onSectionChange, activeSection, isAuthenticated, onLoginRequest, ...props }: React.ComponentProps<typeof Sidebar> & { onSectionChange?: (section: string) => void; activeSection?: string; isAuthenticated?: boolean; onLoginRequest?: () => void }) {
   const userData = localStorage.getItem("firebaseUser");
   const user = userData
     ? {
@@ -160,8 +160,8 @@ export function AppSidebar({ onPanelChange, isAuthenticated, onLoginRequest, ...
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} onPanelChange={onPanelChange} />
-  <NavDocuments items={data.documents} onPanelChange={onPanelChange} />
+        <NavMain items={data.navMain} onSectionChange={onSectionChange} activeSection={activeSection} />
+        <NavDocuments items={data.documents} onSectionChange={onSectionChange} activeSection={activeSection} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

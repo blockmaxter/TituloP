@@ -23,13 +23,14 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 
-export function NavDocuments({ items, onPanelChange }: {
+export function NavDocuments({ items, onSectionChange, activeSection }: {
   items: {
     name: string
     url: string
     icon: LucideIcon
   }[],
-  onPanelChange?: (panel: string) => void
+  onSectionChange?: (section: string) => void,
+  activeSection?: string
 }) {
   const { isMobile } = useSidebar()
 
@@ -37,14 +38,22 @@ export function NavDocuments({ items, onPanelChange }: {
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Documentos</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild onClick={() => onPanelChange && onPanelChange(item.name.toLowerCase())}>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
-            </SidebarMenuButton>
+        {items.map((item) => {
+          const sectionId = item.name.toLowerCase().replace(/\s+/g, '-');
+          const isActive = activeSection === sectionId;
+          
+          return (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton 
+                asChild 
+                onClick={() => onSectionChange && onSectionChange(sectionId)}
+                className={isActive ? "bg-accent text-accent-foreground" : ""}
+              >
+                <a href={item.url}>
+                  <item.icon />
+                  <span>{item.name}</span>
+                </a>
+              </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuAction
@@ -71,7 +80,8 @@ export function NavDocuments({ items, onPanelChange }: {
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
-        ))}
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   )
