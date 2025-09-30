@@ -128,7 +128,7 @@ const data = {
   ],
 }
 
-export function AppSidebar({ onPanelChange, ...props }: React.ComponentProps<typeof Sidebar> & { onPanelChange?: (panel: string) => void }) {
+export function AppSidebar({ onPanelChange, isAuthenticated, onLoginRequest, ...props }: React.ComponentProps<typeof Sidebar> & { onPanelChange?: (panel: string) => void; isAuthenticated?: boolean; onLoginRequest?: () => void }) {
   const userData = localStorage.getItem("firebaseUser");
   const user = userData
     ? {
@@ -137,8 +137,8 @@ export function AppSidebar({ onPanelChange, ...props }: React.ComponentProps<typ
         avatar: JSON.parse(userData).photoURL || "/avatars/shadcn.jpg",
       }
     : {
-        name: "Usuario",
-        email: "m@example.com",
+        name: "Visitante",
+        email: "visitante@example.com",
         avatar: "/avatars/shadcn.jpg",
       };
 
@@ -165,7 +165,7 @@ export function AppSidebar({ onPanelChange, ...props }: React.ComponentProps<typ
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={user} isAuthenticated={isAuthenticated} onLoginRequest={onLoginRequest} />
       </SidebarFooter>
     </Sidebar>
   )

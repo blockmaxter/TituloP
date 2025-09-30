@@ -31,12 +31,16 @@ import app from "@/lib/firebase"
 
 export function NavUser({
   user,
+  isAuthenticated = false,
+  onLoginRequest,
 }: {
   user: {
     name: string
     email: string
     avatar: string
   }
+  isAuthenticated?: boolean
+  onLoginRequest?: () => void
 }) {
   const { isMobile } = useSidebar()
 
@@ -83,23 +87,50 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <UserCircleIcon />
-                Cuenta
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                signOut(getAuth(app))
-                localStorage.removeItem("firebaseUser")
-                window.location.reload()
-              }}
-            >
-              <LogOutIcon />
-              Cerrar sesión
-            </DropdownMenuItem>
+            {!isAuthenticated ? (
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (onLoginRequest) {
+                      onLoginRequest();
+                    } else {
+                      window.location.href = "/login";
+                    }
+                  }}
+                >
+                  <UserCircleIcon />
+                  Iniciar sesión
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            ) : (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <UserCircleIcon />
+                    Mi perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <CreditCardIcon />
+                    Facturación
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <BellIcon />
+                    Notificaciones
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    signOut(getAuth(app))
+                    localStorage.removeItem("firebaseUser")
+                    window.location.href = "/"
+                  }}
+                >
+                  <LogOutIcon />
+                  Cerrar sesión
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

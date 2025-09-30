@@ -17,7 +17,8 @@ export default function LoginPage() {
       if (user) {
         if (user.email && user.email.endsWith("@utem.cl")) {
           localStorage.setItem("firebaseUser", JSON.stringify(user));
-          window.location.reload();
+          // Redirigir al dashboard después de login exitoso
+          window.location.href = "/";
         } else {
           signOut(auth);
           localStorage.removeItem("firebaseUser");
