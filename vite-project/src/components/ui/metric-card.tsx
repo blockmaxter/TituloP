@@ -1,0 +1,115 @@
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  description?: string;
+  trend?: 'up' | 'down' | 'neutral';
+  trendValue?: string;
+  className?: string;
+}
+
+export function MetricCard({ 
+  title, 
+  value, 
+  description, 
+  trend, 
+  trendValue, 
+  className = "" 
+}: MetricCardProps) {
+  const getTrendIcon = () => {
+    switch (trend) {
+      case 'up':
+        return <TrendingUp className="h-3 w-3 text-green-600" />;
+      case 'down':
+        return <TrendingDown className="h-3 w-3 text-red-600" />;
+      case 'neutral':
+        return <Minus className="h-3 w-3 text-gray-600" />;
+      default:
+        return null;
+    }
+  };
+
+  const getTrendColor = () => {
+    switch (trend) {
+      case 'up':
+        return 'text-green-600';
+      case 'down':
+        return 'text-red-600';
+      case 'neutral':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  };
+
+  return (
+    <Card className={className}>
+      <CardHeader className="pb-2 sm:pb-3">
+        <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="space-y-1 sm:space-y-2">
+          <div className="text-xl sm:text-2xl font-bold">{value}</div>
+          {(description || trendValue) && (
+            <div className="flex items-center justify-between">
+              {description && (
+                <p className="text-xs text-muted-foreground flex-1 mr-2">{description}</p>
+              )}
+              {trendValue && trend && (
+                <div className={`flex items-center gap-1 ${getTrendColor()}`}>
+                  {getTrendIcon()}
+                  <span className="text-xs font-medium">{trendValue}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface MetricGridProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function MetricGrid({ children, className = "" }: MetricGridProps) {
+  return (
+    <div className={`grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+interface StatusBadgeProps {
+  status: 'success' | 'warning' | 'error' | 'info';
+  children: React.ReactNode;
+}
+
+export function StatusBadge({ status, children }: StatusBadgeProps) {
+  const getStatusStyles = () => {
+    switch (status) {
+      case 'success':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'error':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'info':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  return (
+    <Badge variant="outline" className={getStatusStyles()}>
+      {children}
+    </Badge>
+  );
+}

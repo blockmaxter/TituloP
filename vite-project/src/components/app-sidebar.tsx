@@ -151,9 +151,9 @@ export function AppSidebar({ onSectionChange, activeSection, isAuthenticated, on
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">Utem Datos</span>
+              <a href="#" className="flex items-center">
+                <ArrowUpCircleIcon className="h-5 w-5 flex-shrink-0" />
+                <span className="text-base font-semibold truncate">Utem Datos</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

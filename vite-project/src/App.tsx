@@ -1,5 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { DataTableBiblioteca } from "@/components/data-table-biblioteca"
+import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
+import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-layout"
 import { useState, useEffect } from "react"
 import {
   Breadcrumb,
@@ -45,7 +47,7 @@ export default function App() {
     const observer = new IntersectionObserver(observerCallback, observerOptions);
     
     // Observar todas las secciones
-    const sections = ['dashboard', 'ciclo-vida', 'analitica'];
+    const sections = ['dashboard', 'biblioteca-de-datos', 'ciclo-vida', 'analitica'];
     sections.forEach(sectionId => {
       const element = document.getElementById(sectionId);
       if (element) {
@@ -98,44 +100,37 @@ export default function App() {
   };
 
   const renderDashboardSection = () => (
-    <section id="dashboard" className="min-h-screen py-8 animate-in fade-in duration-700">
-      <div className="container mx-auto px-4">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Dashboard</h2>
-          <p className="text-muted-foreground">Resumen general del sistema y métricas principales</p>
-        </div>
+    <section id="dashboard" className="min-h-screen py-4 sm:py-8 animate-in fade-in duration-700">
+      <ResponsiveContainer>
+        <SectionHeader
+          title="Dashboard"
+          description="Resumen general del sistema y métricas principales"
+        />
         
-        <div className="grid auto-rows-min gap-6 md:grid-cols-3 mb-8">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Total de Registros</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12,847</div>
-              <p className="text-xs text-muted-foreground">+20.1% desde el mes pasado</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Procesos Activos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">89</div>
-              <p className="text-xs text-muted-foreground">15 completados hoy</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Estado del Sistema</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">Operativo</div>
-              <p className="text-xs text-muted-foreground">99.9% de disponibilidad</p>
-            </CardContent>
-          </Card>
-        </div>
+        <MetricGrid className="mb-6 sm:mb-8">
+          <MetricCard
+            title="Total de Registros"
+            value="12,847"
+            description="+20.1% desde el mes pasado"
+            trend="up"
+            trendValue="20.1%"
+          />
+          <MetricCard
+            title="Procesos Activos"
+            value="89"
+            description="15 completados hoy"
+            trend="neutral"
+          />
+          <MetricCard
+            title="Estado del Sistema"
+            value="Operativo"
+            description="99.9% de disponibilidad"
+            trend="up"
+            className="text-green-600"
+          />
+        </MetricGrid>
 
-        <div className="grid gap-6 md:grid-cols-2 mb-8">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6 sm:mb-8">
           <Card>
             <CardHeader>
               <CardTitle>Actividad Reciente</CardTitle>
@@ -212,11 +207,24 @@ export default function App() {
             <CardTitle>Tendencias de Datos</CardTitle>
             <CardDescription>Análisis temporal del rendimiento</CardDescription>
           </CardHeader>
-          <CardContent className="h-96">
+          <CardContent className="h-80 sm:h-96">
             <ChartAreaInteractive />
           </CardContent>
         </Card>
-      </div>
+      </ResponsiveContainer>
+    </section>
+  );
+
+  const renderBibliotecaSection = () => (
+    <section id="biblioteca-de-datos" className="min-h-screen py-4 sm:py-8 bg-muted/20 animate-in fade-in duration-700">
+      <ResponsiveContainer>
+        <SectionHeader
+          title="Biblioteca de Datos"
+          description="Gestión de datos de estudiantes en práctica profesional"
+        />
+        
+        <DataTableBiblioteca />
+      </ResponsiveContainer>
     </section>
   );
 
@@ -616,20 +624,22 @@ export default function App() {
           onLoginRequest={handleLoginRequest}
         />
         <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b z-10">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
+        <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b z-10">
+          <div className="flex items-center gap-2 px-3 sm:px-4 w-full">
+            <SidebarTrigger className="-ml-1 flex-shrink-0" />
             <Separator
               orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
+              className="mr-2 data-[orientation=vertical]:h-4 hidden sm:block"
             />
-            <Breadcrumb>
+            <Breadcrumb className="min-w-0 flex-1">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>
-                    {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
+                  <BreadcrumbPage className="text-sm sm:text-base">
+                    <span className="truncate">
+                      {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
+                    </span>
                     {!isAuthenticated && (
-                      <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">
+                      <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full hidden sm:inline">
                         Modo Visitante
                       </span>
                     )}
@@ -637,10 +647,16 @@ export default function App() {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+            {!isAuthenticated && (
+              <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full sm:hidden flex-shrink-0">
+                Visitante
+              </span>
+            )}
           </div>
         </header>
         <div className="flex-1">
           {renderDashboardSection()}
+          {renderBibliotecaSection()}
           {renderCicloVidaSection()}
           {renderAnaliticaSection()}
         </div>
