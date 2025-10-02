@@ -2,6 +2,16 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { DataTableBiblioteca } from "@/components/data-table-biblioteca"
 import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-layout"
+import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
+import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
+import { PracticasTendenciaChart } from "@/components/charts/practicas-tendencia-chart"
+import { NotasPracticaChart } from "@/components/charts/notas-practica-chart"
+import { ContratacionesChart } from "@/components/charts/contrataciones-chart"
+import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
+import { EstadoPracticasChart } from "@/components/charts/estado-practicas-chart"
+import { TimelinePracticasChart } from "@/components/charts/timeline-practicas-chart"
+import { DuracionPracticasChart } from "@/components/charts/duracion-practicas-chart"
+import { SeguimientoPracticasChart } from "@/components/charts/seguimiento-practicas-chart"
 import { useState, useEffect } from "react"
 import {
   Breadcrumb,
@@ -109,23 +119,31 @@ export default function App() {
         
         <MetricGrid className="mb-6 sm:mb-8">
           <MetricCard
-            title="Total de Registros"
-            value="12,847"
-            description="+20.1% desde el mes pasado"
+            title="Estudiantes en Práctica"
+            value="120"
+            description="Semestre actual"
             trend="up"
-            trendValue="20.1%"
+            trendValue="8.5%"
           />
           <MetricCard
-            title="Procesos Activos"
-            value="89"
-            description="15 completados hoy"
+            title="Empresas Asociadas"
+            value="78"
+            description="En programa activo"
+            trend="up"
+            trendValue="12.3%"
+          />
+          <MetricCard
+            title="Evaluaciones Enviadas"
+            value="65%"
+            description="78 de 120 completadas"
             trend="neutral"
           />
           <MetricCard
-            title="Estado del Sistema"
-            value="Operativo"
-            description="99.9% de disponibilidad"
+            title="Promedio de Notas"
+            value="5.8"
+            description="Escala 1.0 - 7.0"
             trend="up"
+            trendValue="0.2"
             className="text-green-600"
           />
         </MetricGrid>
@@ -141,22 +159,29 @@ export default function App() {
                 <div className="flex items-center space-x-4">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Nuevo registro procesado</p>
-                    <p className="text-xs text-muted-foreground">Hace 2 minutos</p>
+                    <p className="text-sm font-medium">Nuevo estudiante registrado</p>
+                    <p className="text-xs text-muted-foreground">Juan Pérez - Hace 2 minutos</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Análisis completado</p>
-                    <p className="text-xs text-muted-foreground">Hace 15 minutos</p>
+                    <p className="text-sm font-medium">Evaluación recibida</p>
+                    <p className="text-xs text-muted-foreground">Tech Solutions SpA - Hace 15 minutos</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Backup programado</p>
-                    <p className="text-xs text-muted-foreground">Hace 1 hora</p>
+                    <p className="text-sm font-medium">Práctica finalizada</p>
+                    <p className="text-xs text-muted-foreground">María González - Hace 1 hora</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Nueva empresa registrada</p>
+                    <p className="text-xs text-muted-foreground">Digital Innovations - Hace 3 horas</p>
                   </div>
                 </div>
               </div>
@@ -172,26 +197,26 @@ export default function App() {
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span>CPU</span>
-                    <span>45%</span>
+                    <span>Progreso Semestral</span>
+                    <span>65%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '45%'}}></div>
+                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '65%'}}></div>
                   </div>
                 </div>
                 <div>
                   <div className="flex justify-between text-sm">
-                    <span>Memoria</span>
-                    <span>62%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{width: '62%'}}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm">
-                    <span>Almacenamiento</span>
+                    <span>Evaluaciones Completadas</span>
                     <span>78%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{width: '78%'}}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm">
+                    <span>Satisfacción Empresas</span>
+                    <span>92%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div className="bg-yellow-600 h-2 rounded-full" style={{width: '78%'}}></div>
@@ -202,15 +227,16 @@ export default function App() {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Tendencias de Datos</CardTitle>
-            <CardDescription>Análisis temporal del rendimiento</CardDescription>
-          </CardHeader>
-          <CardContent className="h-80 sm:h-96">
-            <ChartAreaInteractive />
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6 sm:mb-8">
+          <PracticasTendenciaChart />
+          <EvaluacionesChart />
+        </div>
+        
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          <EstudiantesPorCarreraChart />
+          <NotasPracticaChart />
+          <ContratacionesChart />
+        </div>
       </ResponsiveContainer>
     </section>
   );
@@ -229,378 +255,284 @@ export default function App() {
   );
 
   const renderCicloVidaSection = () => (
-    <section id="ciclo-vida" className="min-h-screen py-8 bg-muted/30 animate-in fade-in duration-700">
-      <div className="container mx-auto px-4">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Ciclo de Vida</h2>
-          <p className="text-muted-foreground">Gestión y seguimiento del ciclo de vida de datos</p>
+    <section id="ciclo-vida" className="min-h-screen py-4 sm:py-8 bg-muted/30 animate-in fade-in duration-700">
+      <ResponsiveContainer>
+        <SectionHeader
+          title="Ciclo de Vida de Prácticas Profesionales"
+          description="Seguimiento completo del proceso de prácticas desde inscripción hasta finalización"
+        />
+
+        <MetricGrid className="mb-6 sm:mb-8">
+          <MetricCard
+            title="Duración Promedio"
+            value="5.8 meses"
+            description="Tiempo promedio de práctica"
+            trend="neutral"
+          />
+          <MetricCard
+            title="Tasa de Finalización"
+            value="94.8%"
+            description="Prácticas completadas exitosamente"
+            trend="up"
+            trendValue="3.2%"
+          />
+          <MetricCard
+            title="Tiempo Promedio de Asignación"
+            value="18 días"
+            description="Desde inscripción hasta inicio"
+            trend="down"
+            trendValue="5 días"
+          />
+          <MetricCard
+            title="Índice de Satisfacción"
+            value="4.7/5.0"
+            description="Evaluación del proceso"
+            trend="up"
+            trendValue="0.1"
+            className="text-green-600"
+          />
+        </MetricGrid>
+
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6">
+          <EstadoPracticasChart />
+          <TimelinePracticasChart />
         </div>
-        
-        <div className="grid gap-8 md:grid-cols-2 mb-8">
+
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6">
+          <DuracionPracticasChart />
+          <SeguimientoPracticasChart />
+        </div>
+
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardTitle>Estados del Proceso</CardTitle>
-              <CardDescription>Fases actuales del ciclo de vida</CardDescription>
+              <CardTitle>Proceso de Prácticas</CardTitle>
+              <CardDescription>Etapas del ciclo de vida</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">1. Inscripción y Postulación</div>
+                    <div className="text-xs text-muted-foreground">Registro inicial del estudiante</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                     <div className="w-3 h-3 bg-green-600 rounded-full"></div>
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Recolección</span>
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Completado</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Datos recolectados y validados</p>
+                    <div className="font-medium text-sm">2. Asignación de Empresa</div>
+                    <div className="text-xs text-muted-foreground">Matching estudiante-empresa</div>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <div className="w-3 h-3 bg-blue-600 rounded-full animate-pulse"></div>
+
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Procesamiento</span>
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">En Progreso</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Transformación y limpieza de datos</p>
+                    <div className="font-medium text-sm">3. Inicio de Práctica</div>
+                    <div className="text-xs text-muted-foreground">Inducción y primera semana</div>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-4">
+
+                <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                     <div className="w-3 h-3 bg-yellow-600 rounded-full"></div>
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Análisis</span>
-                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pendiente</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Análisis estadístico y patrones</p>
+                    <div className="font-medium text-sm">4. Desarrollo y Seguimiento</div>
+                    <div className="text-xs text-muted-foreground">Supervisión continua</div>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                    <div className="w-3 h-3 bg-red-600 rounded-full"></div>
                   </div>
                   <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Archivado</span>
-                      <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">Programado</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Almacenamiento a largo plazo</p>
+                    <div className="font-medium text-sm">5. Evaluación y Cierre</div>
+                    <div className="text-xs text-muted-foreground">Evaluación final y certificación</div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
-              <CardTitle>Cronograma del Proyecto</CardTitle>
-              <CardDescription>Planificación temporal</CardDescription>
+              <CardTitle>Cronograma Semestral</CardTitle>
+              <CardDescription>Calendario de actividades</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium">Progreso General</span>
-                    <span className="text-sm font-medium">68%</span>
+                    <span className="font-medium text-sm">Progreso Semestre Actual</span>
+                    <span className="text-sm font-medium">75%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full" style={{width: '68%'}}></div>
+                    <div className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full" style={{width: '75%'}}></div>
                   </div>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-sm">Inicio del proyecto</span>
-                    <span className="text-sm text-muted-foreground">01/09/2025</span>
+                    <span>Inscripciones abiertas</span>
+                    <span className="text-muted-foreground">Mar - Ago</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm">Fase actual</span>
-                    <span className="text-sm font-medium text-blue-600">Procesamiento</span>
+                    <span>Período de prácticas</span>
+                    <span className="text-muted-foreground">Abr - Nov</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm">Próximo hito</span>
-                    <span className="text-sm text-muted-foreground">15/10/2025</span>
+                    <span>Evaluaciones finales</span>
+                    <span className="text-muted-foreground">Oct - Dic</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm">Entrega final</span>
-                    <span className="text-sm text-muted-foreground">15/12/2025</span>
+                    <span>Cierre semestral</span>
+                    <span className="text-muted-foreground">15 Dic</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Indicadores de Calidad</CardTitle>
+              <CardDescription>Métricas de rendimiento</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">96.7%</div>
+                  <div className="text-sm text-muted-foreground">Tasa de aprobación</div>
+                </div>
+                
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span>Promedio de notas</span>
+                    <span className="font-medium">6.2/7.0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Evaluaciones a tiempo</span>
+                    <span className="font-medium">89.3%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Satisfacción empresas</span>
+                    <span className="font-medium">4.6/5.0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Contratación post-práctica</span>
+                    <span className="font-medium">45.2%</span>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Gestión de Versiones</CardTitle>
-            <CardDescription>Control de versiones y actualizaciones del dataset</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <h4 className="font-medium">Versión Actual</h4>
-                <div className="text-2xl font-bold text-blue-600">v2.3.1</div>
-                <p className="text-sm text-muted-foreground">Actualizada hace 2 días</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-medium">Cambios Pendientes</h4>
-                <div className="text-2xl font-bold text-orange-600">47</div>
-                <p className="text-sm text-muted-foreground">Revisiones en cola</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-medium">Próxima Versión</h4>
-                <div className="text-2xl font-bold text-green-600">v2.4.0</div>
-                <p className="text-sm text-muted-foreground">Estimada para el 20/10</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </ResponsiveContainer>
     </section>
   );
 
   const renderAnaliticaSection = () => (
-    <section id="analitica" className="min-h-screen py-8 animate-in fade-in duration-700">
-      <div className="container mx-auto px-4">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Analítica</h2>
-          <p className="text-muted-foreground">Análisis avanzado y métricas de rendimiento</p>
+    <section id="analitica" className="min-h-screen py-4 sm:py-8 animate-in fade-in duration-700">
+      <ResponsiveContainer>
+        <SectionHeader
+          title="Analítica de Prácticas Profesionales"
+          description="Análisis estadístico y métricas de rendimiento del programa"
+        />
+
+        <MetricGrid className="mb-6 sm:mb-8">
+          <MetricCard
+            title="Tasa de Aprobación"
+            value="96.7%"
+            description="Estudiantes aprobados"
+            trend="up"
+            trendValue="2.1%"
+          />
+          <MetricCard
+            title="Promedio de Horas"
+            value="720"
+            description="Horas de práctica completadas"
+            trend="neutral"
+          />
+          <MetricCard
+            title="Inserción Laboral"
+            value="45%"
+            description="Contratados post-práctica"
+            trend="up"
+            trendValue="8.3%"
+          />
+          <MetricCard
+            title="Satisfacción Empresarial"
+            value="4.6/5.0"
+            description="Evaluación promedio"
+            trend="up"
+            trendValue="0.3"
+            className="text-green-600"
+          />
+        </MetricGrid>
+
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6">
+          <EstudiantesPorComunaChart />
+          <EvaluacionesChart />
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Registros Procesados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">847,392</div>
-              <p className="text-xs text-green-600">+12.5% esta semana</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Precisión del Modelo</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">94.7%</div>
-              <p className="text-xs text-blue-600">+2.1% vs mes anterior</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Tiempo de Procesamiento</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1.2s</div>
-              <p className="text-xs text-green-600">-15% optimización</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Anomalías Detectadas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">23</div>
-              <p className="text-xs text-orange-600">+3 desde ayer</p>
-            </CardContent>
-          </Card>
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6">
+          <PracticasTendenciaChart />
+          <NotasPracticaChart />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Distribución de Datos</CardTitle>
-              <CardDescription>Análisis por categorías principales</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Categoría A</span>
-                    <span>45%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{width: '45%'}}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Categoría B</span>
-                    <span>30%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{width: '30%'}}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span>Categoría C</span>
-                    <span>25%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-purple-600 h-2 rounded-full" style={{width: '25%'}}></div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Tendencias Temporales</CardTitle>
-              <CardDescription>Patrones de uso por hora</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Pico matutino</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-blue-600 h-2 rounded-full" style={{width: '80%'}}></div>
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
+          <ContratacionesChart />
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Indicadores Clave</CardTitle>
+                <CardDescription>Métricas principales del programa</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Progreso Semestral</span>
+                      <span>75%</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">09:00</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Actividad media</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-green-600 h-2 rounded-full" style={{width: '45%'}}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-600 h-2 rounded-full" style={{width: '75%'}}></div>
                     </div>
-                    <span className="text-sm text-muted-foreground">14:00</span>
                   </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Pico vespertino</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-purple-600 h-2 rounded-full" style={{width: '95%'}}></div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Cumplimiento de Objetivos</span>
+                      <span>88%</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">18:00</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Actividad nocturna</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-16 bg-gray-200 rounded-full h-2">
-                      <div className="bg-gray-600 h-2 rounded-full" style={{width: '15%'}}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-green-600 h-2 rounded-full" style={{width: '88%'}}></div>
                     </div>
-                    <span className="text-sm text-muted-foreground">02:00</span>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Calidad de Supervisión</span>
+                      <span>91%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-purple-600 h-2 rounded-full" style={{width: '91%'}}></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Calidad de Datos</CardTitle>
-              <CardDescription>Métricas de integridad</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">98.5%</div>
-                  <p className="text-sm text-muted-foreground">Completitud</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-xs">Registros válidos</span>
-                    <span className="text-xs">99.2%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs">Duplicados</span>
-                    <span className="text-xs">0.3%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs">Valores nulos</span>
-                    <span className="text-xs">1.5%</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Rendimiento del Sistema</CardTitle>
-              <CardDescription>Métricas operativas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">99.9%</div>
-                  <p className="text-sm text-muted-foreground">Disponibilidad</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-xs">Latencia promedio</span>
-                    <span className="text-xs">45ms</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs">Throughput</span>
-                    <span className="text-xs">1.2K req/s</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs">Tasa de error</span>
-                    <span className="text-xs">0.1%</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Predicciones</CardTitle>
-              <CardDescription>Modelos predictivos</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600">87.3%</div>
-                  <p className="text-sm text-muted-foreground">Confianza</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-xs">Precisión del modelo</span>
-                    <span className="text-xs">94.7%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs">Recall</span>
-                    <span className="text-xs">91.2%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs">F1-Score</span>
-                    <span className="text-xs">92.9%</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Análisis de Tendencias</CardTitle>
-            <CardDescription>Evolución temporal de las métricas principales</CardDescription>
-          </CardHeader>
-          <CardContent className="h-80">
-            <ChartAreaInteractive />
-          </CardContent>
-        </Card>
-      </div>
+      </ResponsiveContainer>
     </section>
   );
 
