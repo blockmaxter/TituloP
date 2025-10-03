@@ -5,6 +5,7 @@ import {
   UserCircleIcon,
 } from "lucide-react"
 import { getAuth, signOut } from "firebase/auth"
+import { useState } from "react"
 
 import {
   Avatar,
@@ -26,6 +27,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { UserProfileDialog } from "@/components/UserProfileDialog"
 import app from "@/lib/firebase"
 
 export function NavUser({
@@ -42,6 +44,7 @@ export function NavUser({
   onLoginRequest?: () => void
 }) {
   const { isMobile } = useSidebar()
+  const [showProfileDialog, setShowProfileDialog] = useState(false)
 
   return (
     <SidebarMenu>
@@ -112,7 +115,7 @@ export function NavUser({
             ) : (
               <>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowProfileDialog(true)}>
                     <UserCircleIcon />
                     Mi perfil
                   </DropdownMenuItem>
@@ -136,6 +139,12 @@ export function NavUser({
             )}
           </DropdownMenuContent>
         </DropdownMenu>
+        
+        {/* Diálogo de perfil de usuario */}
+        <UserProfileDialog 
+          open={showProfileDialog} 
+          onOpenChange={setShowProfileDialog} 
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   )

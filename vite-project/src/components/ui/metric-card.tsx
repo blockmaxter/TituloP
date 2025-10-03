@@ -9,6 +9,7 @@ interface MetricCardProps {
   description?: string;
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
+  change?: number; // Nuevo prop para cambio numérico
   className?: string;
 }
 
@@ -18,10 +19,15 @@ export function MetricCard({
   description, 
   trend, 
   trendValue, 
+  change,
   className = "" 
 }: MetricCardProps) {
+  // Si se proporciona change, convertir a trend y trendValue
+  const effectiveTrend = trend || (change !== undefined ? (change > 0 ? 'up' : change < 0 ? 'down' : 'neutral') : undefined);
+  const effectiveTrendValue = trendValue || (change !== undefined ? `${change > 0 ? '+' : ''}${change}%` : undefined);
+
   const getTrendIcon = () => {
-    switch (trend) {
+    switch (effectiveTrend) {
       case 'up':
         return <TrendingUp className="h-3 w-3 text-green-600" />;
       case 'down':
@@ -34,7 +40,7 @@ export function MetricCard({
   };
 
   const getTrendColor = () => {
-    switch (trend) {
+    switch (effectiveTrend) {
       case 'up':
         return 'text-green-600';
       case 'down':
@@ -54,15 +60,15 @@ export function MetricCard({
       <CardContent className="pt-0">
         <div className="space-y-1 sm:space-y-2">
           <div className="text-xl sm:text-2xl font-bold">{value}</div>
-          {(description || trendValue) && (
+          {(description || effectiveTrendValue) && (
             <div className="flex items-center justify-between">
               {description && (
                 <p className="text-xs text-muted-foreground flex-1 mr-2">{description}</p>
               )}
-              {trendValue && trend && (
+              {effectiveTrendValue && effectiveTrend && (
                 <div className={`flex items-center gap-1 ${getTrendColor()}`}>
                   {getTrendIcon()}
-                  <span className="text-xs font-medium">{trendValue}</span>
+                  <span className="text-xs font-medium">{effectiveTrendValue}</span>
                 </div>
               )}
             </div>

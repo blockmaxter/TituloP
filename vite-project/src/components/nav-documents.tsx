@@ -22,6 +22,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { usePermissions } from "@/contexts/PermissionsContext"
+import { Permission } from "@/types/permissions"
 
 export function NavDocuments({ items, onSectionChange, activeSection }: {
   items: {
@@ -33,12 +35,34 @@ export function NavDocuments({ items, onSectionChange, activeSection }: {
   activeSection?: string
 }) {
   const { isMobile } = useSidebar()
+  const { hasPermission } = usePermissions()
+
+  // Mapeo de documentos a permisos requeridos
+  const getDocumentPermissions = (name: string): Permission[] => {
+    switch (name.toLowerCase()) {
+      case 'biblioteca de datos':
+        return [Permission.VIEW_DATA_LIBRARY];
+      case 'formulario':
+        return []; // Sin permisos específicos requeridos
+      default:
+        return [];
+    }
+  }
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Documentos</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
+          const requiredPermissions = getDocumentPermissions(item.name);
+          const hasAccess = requiredPermissions.length === 0 || 
+                           requiredPermissions.some(permission => hasPermission(permission));
+          
+          // Si no tiene permisos, no mostrar el item
+          if (!hasAccess) {
+            return null;
+          }
+
           const sectionId = item.name.toLowerCase().replace(/\s+/g, '-');
           const isActive = activeSection === sectionId;
           

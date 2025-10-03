@@ -7,7 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "users:init": "node scripts/initUsers.js init",
+    "users:stats": "node scripts/initUsers.js stats",
+    "users:cleanup": "node scripts/initUsers.js cleanup",
+    "promote:superadmin": "node scripts/promoteUser.js",
+    "auth:create-test": "node scripts/testEmailAuth.cjs create",
+    "auth:test-login": "node scripts/testEmailAuth.cjs test"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

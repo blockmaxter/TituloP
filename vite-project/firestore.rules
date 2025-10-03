@@ -1,0 +1,207 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Función auxiliar para verificar si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Función para obtener los datos del usuario actual
+    function getCurrentUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // Función para verificar si el usuario tiene un rol específico
+    function hasRole(role) {
+      return isAuthenticated() && getCurrentUserData().role == role;
+    }
+    
+    // Función para verificar si el usuario tiene uno de varios roles
+    function hasAnyRole(roles) {
+      return isAuthenticated() && getCurrentUserData().role in roles;
+    }
+    
+    // Función para verificar si el usuario está activo
+    function isActiveUser() {
+      return isAuthenticated() && getCurrentUserData().isActive == true;
+    }
+
+    // ==========================================
+    // REGLAS PARA COLECCIÓN DE USUARIOS
+    // ==========================================
+    
+    match /users/{userId} {
+      // Permitir que los usuarios lean su propia información
+      allow read: if isAuthenticated() && 
+                     request.auth.uid == userId && 
+                     isActiveUser();
+      
+      // Permitir que administradores lean cualquier usuario
+      allow read: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
+      
+      // Los usuarios pueden actualizar su propia información básica
+      allow update: if isAuthenticated() && 
+                       request.auth.uid == userId && 
+                       isActiveUser() &&
+                       // Solo campos permitidos para auto-actualización
+                       request.resource.data.keys().hasOnly(['displayName', 'photoURL', 'updatedAt']) &&
+                       // No pueden cambiar su rol o estado
+                       request.resource.data.role == resource.data.role &&
+                       request.resource.data.isActive == resource.data.isActive;
+      
+      // Solo administradores pueden crear nuevos usuarios
+      allow create: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
+      
+      // Solo administradores pueden actualizar roles y estados
+      allow update: if hasAnyRole(['super_admin', 'admin']) && 
+                       isActiveUser() &&
+                       // Super admin puede cambiar cualquier cosa
+                       (hasRole('super_admin') || 
+                        // Admin puede cambiar todo excepto super_admin
+                        (hasRole('admin') && !(request.resource.data.role == 'super_admin')));
+      
+      // Solo super_admin puede eliminar usuarios
+      allow delete: if hasRole('super_admin') && isActiveUser();
+    }
+    
+    // Permitir listar usuarios solo a administradores
+    match /users/{document=**} {
+      allow list: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
+    }
+
+    // ==========================================
+    // REGLAS PARA DATOS DE ESTUDIANTES Y PRÁCTICAS
+    // ==========================================
+    
+    match /students/{studentId} {
+      // Coordinadores, profesores y admins pueden leer
+      allow read: if hasAnyRole(['super_admin', 'admin', 'coordinator', 'professor']) && isActiveUser();
+      
+      // Estudiantes solo pueden leer su propia información
+      allow read: if hasRole('student') && 
+                     isActiveUser() &&
+                     request.auth.token.email == resource.data.email;
+      
+      // Solo coordinadores y admins pueden escribir
+      allow write: if hasAnyRole(['super_admin', 'admin', 'coordinator']) && isActiveUser();
+    }
+    
+    match /practices/{practiceId} {
+      // Todos los roles autenticados pueden leer prácticas (con filtros por permisos en frontend)
+      allow read: if isActiveUser();
+      
+      // Solo coordinadores, profesores y admins pueden crear/actualizar
+      allow create, update: if hasAnyRole(['super_admin', 'admin', 'coordinator', 'professor']) && isActiveUser();
+      
+      // Solo admins y coordinadores pueden eliminar
+      allow delete: if hasAnyRole(['super_admin', 'admin', 'coordinator']) && isActiveUser();
+    }
+    
+    match /evaluations/{evaluationId} {
+      // Profesores, coordinadores y admins pueden leer evaluaciones
+      allow read: if hasAnyRole(['super_admin', 'admin', 'coordinator', 'professor']) && isActiveUser();
+      
+      // Estudiantes pueden leer sus propias evaluaciones
+      allow read: if hasRole('student') && 
+                     isActiveUser() &&
+                     request.auth.token.email == resource.data.studentEmail;
+      
+      // Solo profesores, coordinadores y admins pueden crear/actualizar evaluaciones
+      allow create, update: if hasAnyRole(['super_admin', 'admin', 'coordinator', 'professor']) && isActiveUser();
+      
+      // Solo admins y coordinadores pueden eliminar evaluaciones
+      allow delete: if hasAnyRole(['super_admin', 'admin', 'coordinator']) && isActiveUser();
+    }
+
+    // ==========================================
+    // REGLAS PARA CONFIGURACIÓN Y METADATOS
+    // ==========================================
+    
+    match /settings/{settingId} {
+      // Solo administradores pueden leer configuraciones
+      allow read: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
+      
+      // Solo super_admin puede modificar configuraciones críticas
+      allow write: if hasRole('super_admin') && isActiveUser();
+    }
+    
+    match /audit_logs/{logId} {
+      // Solo super_admin puede leer logs de auditoría
+      allow read: if hasRole('super_admin') && isActiveUser();
+      
+      // Permitir crear logs (para logging automático)
+      // En producción, esto se haría desde Cloud Functions
+      allow create: if isAuthenticated();
+    }
+
+    // ==========================================
+    // REGLAS PARA REPORTES Y ANALYTICS
+    // ==========================================
+    
+    match /reports/{reportId} {
+      // Coordinadores, profesores y admins pueden leer reportes
+      allow read: if hasAnyRole(['super_admin', 'admin', 'coordinator', 'professor']) && isActiveUser();
+      
+      // Solo coordinadores y admins pueden crear reportes
+      allow create: if hasAnyRole(['super_admin', 'admin', 'coordinator']) && isActiveUser();
+      
+      // Solo el creador o admins pueden actualizar
+      allow update: if isActiveUser() && 
+                       (resource.data.createdBy == request.auth.uid || 
+                        hasAnyRole(['super_admin', 'admin']));
+      
+      // Solo admins pueden eliminar
+      allow delete: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
+    }
+
+    // ==========================================
+    // REGLAS POR DEFECTO (DENEGAR TODO LO DEMÁS)
+    // ==========================================
+    
+    // Denegar acceso a cualquier otra colección no especificada
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// ==========================================
+// REGLAS PARA STORAGE (si usas Firebase Storage)
+// ==========================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Perfiles de usuario
+    match /users/{userId}/profile/{allPaths=**} {
+      // Los usuarios pueden subir/actualizar su propia foto de perfil
+      allow read, write: if request.auth != null && 
+                            request.auth.uid == userId;
+      
+      // Los admins pueden leer cualquier perfil
+      allow read: if request.auth != null; // Verificar rol en Firestore si es necesario
+    }
+    
+    // Documentos de prácticas
+    match /practices/{practiceId}/{allPaths=**} {
+      // Solo usuarios autenticados con roles apropiados
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+                      // Verificar permisos específicos en Firestore si es necesario
+                      request.auth.token.email.matches('.*@utem\\.cl$');
+    }
+    
+    // Reportes exportados
+    match /reports/{allPaths=**} {
+      // Solo administradores y coordinadores
+      allow read, write: if request.auth != null && 
+                            request.auth.token.email.matches('.*@utem\\.cl$');
+    }
+    
+    // Denegar todo lo demás
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

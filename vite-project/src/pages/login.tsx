@@ -39,10 +39,54 @@ export default function LoginPage() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    
+    // Validar formato de email
+    if (!email.includes("@")) {
+      setError("Formato de correo electrónico inválido");
+      return;
+    }
+    
+    // Validar dominio institucional antes del login
+    if (!email.endsWith("@utem.cl")) {
+      setError("Solo se permiten correos institucionales @utem.cl");
+      return;
+    }
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      console.log("Intentando login con:", email); // Debug log
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log("Login exitoso:", userCredential.user.email); // Debug log
+      
+      // El onAuthStateChanged se encargará de la redirección
     } catch (err: any) {
-      setError("Correo o contraseña incorrectos");
+      console.error("Error de login:", err); // Debug log
+      
+      // Manejo específico de errores
+      switch (err.code) {
+        case 'auth/user-not-found':
+          setError("No existe una cuenta con este correo electrónico. Contacta al administrador para crear tu cuenta.");
+          break;
+        case 'auth/wrong-password':
+          setError("Contraseña incorrecta. Verifica tu contraseña o usa 'Olvidaste tu contraseña'.");
+          break;
+        case 'auth/invalid-email':
+          setError("Formato de correo electrónico inválido");
+          break;
+        case 'auth/user-disabled':
+          setError("Esta cuenta ha sido deshabilitada. Contacta al administrador.");
+          break;
+        case 'auth/too-many-requests':
+          setError("Demasiados intentos fallidos. Intenta nuevamente en unos minutos.");
+          break;
+        case 'auth/network-request-failed':
+          setError("Error de conexión. Verifica tu conexión a internet.");
+          break;
+        case 'auth/invalid-credential':
+          setError("Credenciales inválidas. Verifica tu correo y contraseña.");
+          break;
+        default:
+          setError(`Error al iniciar sesión: ${err.message}`);
+      }
     }
   };
 

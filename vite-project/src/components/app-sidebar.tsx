@@ -53,6 +53,11 @@ const data = {
       url: "#",
       icon: BarChartIcon,
     },
+    {
+      title: "Administración",
+      url: "#",
+      icon: SettingsIcon,
+    },
   ],
   navClouds: [
     {
