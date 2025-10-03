@@ -28,6 +28,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Toaster } from "@/components/ui/sonner"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { FloatingNav } from "@/components/floating-nav"
@@ -310,6 +311,7 @@ function AppContent() {
   return (
     <>
       <ScrollProgress />
+      <Toaster />
       <SidebarProvider>
         <AppSidebar 
           onSectionChange={scrollToSection} 

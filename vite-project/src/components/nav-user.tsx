@@ -3,6 +3,7 @@ import {
   LogOutIcon,
   MoreVerticalIcon,
   UserCircleIcon,
+  SettingsIcon,
 } from "lucide-react"
 import { getAuth, signOut } from "firebase/auth"
 import { useState } from "react"
@@ -28,6 +29,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { UserProfileDialog } from "@/components/UserProfileDialog"
+import { SettingsDialog } from "@/components/SettingsDialog"
+import { NotificationsDialog } from "@/components/NotificationsDialog"
 import app from "@/lib/firebase"
 
 export function NavUser({
@@ -45,6 +48,8 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
   const [showProfileDialog, setShowProfileDialog] = useState(false)
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false)
+  const [showNotificationsDialog, setShowNotificationsDialog] = useState(false)
 
   return (
     <SidebarMenu>
@@ -119,7 +124,11 @@ export function NavUser({
                     <UserCircleIcon />
                     Mi perfil
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
+                    <SettingsIcon />
+                    Configuración
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setShowNotificationsDialog(true)}>
                     <BellIcon />
                     Notificaciones
                   </DropdownMenuItem>
@@ -144,6 +153,18 @@ export function NavUser({
         <UserProfileDialog 
           open={showProfileDialog} 
           onOpenChange={setShowProfileDialog} 
+        />
+        
+        {/* Diálogo de configuración */}
+        <SettingsDialog 
+          open={showSettingsDialog} 
+          onOpenChange={setShowSettingsDialog} 
+        />
+        
+        {/* Diálogo de notificaciones */}
+        <NotificationsDialog 
+          open={showNotificationsDialog} 
+          onOpenChange={setShowNotificationsDialog} 
         />
       </SidebarMenuItem>
     </SidebarMenu>
