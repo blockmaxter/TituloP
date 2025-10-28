@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Toaster } from "@/components/ui/sonner"
+import { ConnectionDiagnostic } from "@/components/ConnectionDiagnostic"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { FloatingNav } from "@/components/floating-nav"
@@ -38,11 +39,13 @@ import { UserManagement } from "@/components/admin/UserManagement"
 import { usePermissions } from "@/contexts/PermissionsContext"
 import { Permission } from "@/types/permissions"
 import AuthWrapper from "@/components/AuthWrapper"
+import { ThemeProvider } from "@/contexts/ThemeContext"
 import HomePage from "./pages/index"
 
 function AppContent() {
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState<string>("dashboard");
   const [showLogin, setShowLogin] = useState(false);
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
   const { user, loading } = usePermissions();
 
   // Intersection Observer para detectar sección activa
@@ -335,7 +338,7 @@ function AppContent() {
                         {activeSection.charAt(0).toUpperCase() + activeSection.slice(1).replace('-', ' ')}
                       </span>
                       {!isAuthenticated && (
-                        <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full hidden sm:inline">
+                        <span className="ml-2 text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded-full hidden sm:inline font-medium">
                           Modo Visitante
                         </span>
                       )}
@@ -350,7 +353,7 @@ function AppContent() {
                   <RoleBadge showIcon={false} className="hidden sm:flex" />
                 )}
                 {!isAuthenticated && (
-                  <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full sm:hidden flex-shrink-0">
+                  <span className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded-full sm:hidden flex-shrink-0 font-medium">
                     Visitante
                   </span>
                 )}
@@ -378,8 +381,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthWrapper>
-      <AppContent />
-    </AuthWrapper>
+    <ThemeProvider>
+      <AuthWrapper>
+        <AppContent />
+      </AuthWrapper>
+    </ThemeProvider>
   );
 }

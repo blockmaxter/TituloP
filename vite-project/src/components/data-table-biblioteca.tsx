@@ -167,7 +167,7 @@ export function DataTableBiblioteca() {
                 </Button>
                 <Button 
                   onClick={() => setShowImporter(!showImporter)}
-                  className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground whitespace-nowrap"
                   size="sm"
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -261,30 +261,30 @@ export function DataTableBiblioteca() {
               {/* Vista de cards para pantallas medianas */}
               <div className="hidden md:block lg:hidden overflow-x-auto">
                 <table className="min-w-full border-collapse">
-                  <thead className="bg-blue-100 sticky top-0">
+                  <thead className="bg-slate-100 dark:bg-slate-800 sticky top-0">
                     <tr>
-                      <th className="px-3 py-3 border-b text-xs font-bold text-blue-900 text-left">ESTUDIANTE</th>
-                      <th className="px-3 py-3 border-b text-xs font-bold text-blue-900 text-left">EMPRESA</th>
-                      <th className="px-3 py-3 border-b text-xs font-bold text-blue-900 text-left">UBICACIÓN</th>
-                      <th className="px-3 py-3 border-b text-xs font-bold text-blue-900 text-left">PRÁCTICA</th>
-                      <th className="px-3 py-3 border-b text-xs font-bold text-blue-900 text-left">ESTADO</th>
+                      <th className="px-3 py-3 border-b border-slate-200 text-xs font-bold text-slate-700 dark:text-slate-300 text-left">ESTUDIANTE</th>
+                      <th className="px-3 py-3 border-b border-slate-200 text-xs font-bold text-slate-700 dark:text-slate-300 text-left">EMPRESA</th>
+                      <th className="px-3 py-3 border-b border-slate-200 text-xs font-bold text-slate-700 dark:text-slate-300 text-left">UBICACIÓN</th>
+                      <th className="px-3 py-3 border-b border-slate-200 text-xs font-bold text-slate-700 dark:text-slate-300 text-left">PRÁCTICA</th>
+                      <th className="px-3 py-3 border-b border-slate-200 text-xs font-bold text-slate-700 dark:text-slate-300 text-left">ESTADO</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.map((row, idx) => (
-                      <tr key={row.id || idx} className="hover:bg-blue-50 border-b">
+                      <tr key={row.id || idx} className="hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100">
                         <td className="px-3 py-3 text-sm">
                           <div>
-                            <p className="font-medium">{row.nombreEstudiante}</p>
-                            <p className="text-xs text-gray-500">{row.rut}</p>
-                            <p className="text-xs text-gray-500">{row.carrera}</p>
+                            <p className="font-semibold text-slate-900 dark:text-slate-100">{row.nombreEstudiante}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400">{row.rut}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">{row.carrera}</p>
                           </div>
                         </td>
                         <td className="px-3 py-3 text-sm">
                           <div>
-                            <p className="font-medium">{row.nombreEmpresa}</p>
-                            <p className="text-xs text-gray-500">{row.jefeDirecto}</p>
-                            <p className="text-xs text-gray-500">{row.cargo}</p>
+                            <p className="font-semibold text-slate-900 dark:text-slate-100">{row.nombreEmpresa}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400">{row.jefeDirecto}</p>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{row.cargo}</p>
                           </div>
                         </td>
                         <td className="px-3 py-3 text-sm">

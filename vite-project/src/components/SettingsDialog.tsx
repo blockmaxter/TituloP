@@ -29,6 +29,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { usePermissions } from "@/contexts/PermissionsContext";
+import { useTheme, Theme } from "@/contexts/ThemeContext";
 import { UserSettings, DEFAULT_USER_SETTINGS } from "@/types/settings";
 import { 
   SettingsIcon,
@@ -61,9 +62,29 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   onOpenChange,
 }) => {
   const { user } = usePermissions();
+  
+  let themeContext;
+  try {
+    themeContext = useTheme();
+  } catch (error) {
+    console.warn('ThemeContext no disponible:', error);
+    themeContext = { theme: 'system' as const, setTheme: () => {} };
+  }
+  
+  const { theme, setTheme } = themeContext;
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_USER_SETTINGS);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Debug: Log del estado del botón
+  useEffect(() => {
+    console.log('Estado del botón Guardar cambios:', {
+      saving,
+      loading,
+      hasUser: !!user,
+      shouldBeDisabled: saving || loading || !user
+    });
+  }, [saving, loading, user]);
 
   // Cargar configuraciones del usuario
   useEffect(() => {
@@ -71,6 +92,14 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
       loadUserSettings();
     }
   }, [user, open]);
+
+  // Resetear estados cuando se abre/cierra el diálogo
+  useEffect(() => {
+    if (open) {
+      setSaving(false);
+      setLoading(false);
+    }
+  }, [open]);
 
   const loadUserSettings = async () => {
     if (!user) return;
@@ -80,7 +109,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
       const settingsDoc = await getDoc(doc(db, 'userSettings', user.uid));
       if (settingsDoc.exists()) {
         const userData = settingsDoc.data() as UserSettings;
-        setSettings({
+        const mergedSettings = {
           ...DEFAULT_USER_SETTINGS,
           ...userData,
           profile: {
@@ -89,7 +118,14 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
             email: user.email,
             ...userData.profile,
           }
-        });
+        };
+        
+        setSettings(mergedSettings);
+        
+        // Sincronizar el tema si es diferente del actual
+        if (userData.preferences?.theme && userData.preferences.theme !== theme) {
+          setTheme(userData.preferences.theme);
+        }
       } else {
         // Si no existen configuraciones, usar los datos del usuario
         setSettings({
@@ -110,26 +146,54 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   };
 
   const saveSettings = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error('No hay usuario autenticado');
+      return;
+    }
     
     setSaving(true);
+    console.log('Iniciando guardado de configuraciones...', { userId: user.uid, settings });
+    
     try {
-      await setDoc(doc(db, 'userSettings', user.uid), {
+      const settingsToSave = {
         ...settings,
         updatedAt: new Date(),
-      }, { merge: true });
+      };
       
+      console.log('Datos a guardar:', settingsToSave);
+      
+      await setDoc(doc(db, 'userSettings', user.uid), settingsToSave, { merge: true });
+      
+      console.log('Configuraciones guardadas exitosamente');
       toast.success('Configuración guardada exitosamente');
       onOpenChange(false);
     } catch (error) {
-      console.error('Error saving settings:', error);
-      toast.error('Error al guardar configuración');
+      console.error('Error detallado al guardar configuración:', {
+        error,
+        message: error instanceof Error ? error.message : 'Error desconocido',
+        userId: user.uid,
+        settings
+      });
+      
+      let errorMessage = 'Error al guardar configuración';
+      if (error instanceof Error) {
+        if (error.message.includes('permission-denied')) {
+          errorMessage = 'No tienes permisos para guardar la configuración';
+        } else if (error.message.includes('offline')) {
+          errorMessage = 'Sin conexión a internet. Verifica tu conexión';
+        } else if (error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
+          errorMessage = 'Conexión bloqueada. Desactiva el bloqueador de anuncios';
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
   };
 
   const updateSetting = (path: string, value: any) => {
+    console.log(`Actualizando setting: ${path} = ${value}`);
     setSettings(prev => {
       const keys = path.split('.');
       const updated = { ...prev };
@@ -144,6 +208,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
       return updated;
     });
   };
+
+  const canSave = !saving && !loading && !!user;
 
   if (!user) return null;
 
@@ -512,20 +578,47 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label>Tema</Label>
+                      <Label htmlFor="theme-select">Tema de la aplicación</Label>
                       <Select
-                        value={settings.preferences.theme}
-                        onValueChange={(value: 'light' | 'dark' | 'system') => updateSetting('preferences.theme', value)}
+                        value={theme}
+                        onValueChange={(value: Theme) => {
+                          try {
+                            setTheme(value);
+                            updateSetting('preferences.theme', value);
+                            console.log('Tema actualizado a:', value);
+                          } catch (error) {
+                            console.error('Error al cambiar tema:', error);
+                            toast.error('Error al cambiar el tema');
+                          }
+                        }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger id="theme-select">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="light">Claro</SelectItem>
-                          <SelectItem value="dark">Oscuro</SelectItem>
-                          <SelectItem value="system">Automático</SelectItem>
+                          <SelectItem value="light">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-yellow-400 border border-yellow-500"></div>
+                              Claro
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="dark">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-slate-800 border border-slate-600"></div>
+                              Oscuro
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="system">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full bg-gradient-to-r from-yellow-400 to-slate-800 border border-slate-400"></div>
+                              Automático (Sistema)
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
+                      <p className="text-xs text-muted-foreground">
+                        El tema automático cambia según las preferencias de tu sistema operativo
+                      </p>
                     </div>
                     
                     <div className="space-y-2">
@@ -661,11 +754,34 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button onClick={saveSettings} disabled={saving}>
+            {(saving || loading) && (
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setSaving(false);
+                  setLoading(false);
+                  console.log('Estados reseteados manualmente');
+                }}
+                className="text-xs"
+              >
+                Resetear
+              </Button>
+            )}
+            <Button 
+              onClick={saveSettings} 
+              disabled={!canSave}
+              className="min-w-[140px]"
+              title={!canSave ? 'No se puede guardar en este momento' : 'Guardar configuraciones'}
+            >
               {saving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
                   Guardando...
+                </>
+              ) : loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                  Cargando...
                 </>
               ) : (
                 <>

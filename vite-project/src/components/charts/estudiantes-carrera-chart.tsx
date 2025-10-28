@@ -18,10 +18,10 @@ import {
 
 // Datos de estudiantes por carrera
 const estudiantesPorCarrera = [
-  { carrera: "Ing. Civil Informática", cantidad: 45, color: "#3b82f6" },
-  { carrera: "Ing. Informática", cantidad: 38, color: "#10b981" },
-  { carrera: "Ing. Civil Computación", cantidad: 22, color: "#f59e0b" },
-  { carrera: "Técnico Informática", cantidad: 15, color: "#ef4444" },
+  { carrera: "Ing. Civil Informática", cantidad: 45, color: "hsl(var(--chart-1))" },
+  { carrera: "Ing. Informática", cantidad: 38, color: "hsl(var(--chart-2))" },
+  { carrera: "Ing. Civil Computación", cantidad: 22, color: "hsl(var(--chart-3))" },
+  { carrera: "Técnico Informática", cantidad: 15, color: "hsl(var(--chart-4))" },
 ]
 
 const chartConfig = {
@@ -35,8 +35,8 @@ export function EstudiantesPorCarreraChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Estudiantes por Carrera</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-slate-900 dark:text-slate-100 font-bold">Estudiantes por Carrera</CardTitle>
+        <CardDescription className="text-slate-600 dark:text-slate-400 font-medium">
           Distribución de estudiantes en práctica profesional por carrera
         </CardDescription>
       </CardHeader>

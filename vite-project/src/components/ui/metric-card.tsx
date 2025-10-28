@@ -29,11 +29,11 @@ export function MetricCard({
   const getTrendIcon = () => {
     switch (effectiveTrend) {
       case 'up':
-        return <TrendingUp className="h-3 w-3 text-green-600" />;
+        return <TrendingUp className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />;
       case 'down':
-        return <TrendingDown className="h-3 w-3 text-red-600" />;
+        return <TrendingDown className="h-3 w-3 text-red-600 dark:text-red-400" />;
       case 'neutral':
-        return <Minus className="h-3 w-3 text-gray-600" />;
+        return <Minus className="h-3 w-3 text-slate-500 dark:text-slate-400" />;
       default:
         return null;
     }
@@ -42,33 +42,33 @@ export function MetricCard({
   const getTrendColor = () => {
     switch (effectiveTrend) {
       case 'up':
-        return 'text-green-600';
+        return 'text-emerald-600 dark:text-emerald-400';
       case 'down':
-        return 'text-red-600';
+        return 'text-red-600 dark:text-red-400';
       case 'neutral':
-        return 'text-gray-600';
+        return 'text-slate-500 dark:text-slate-400';
       default:
-        return 'text-gray-600';
+        return 'text-slate-500 dark:text-slate-400';
     }
   };
 
   return (
     <Card className={className}>
       <CardHeader className="pb-2 sm:pb-3">
-        <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
+        <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">{title}</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="space-y-1 sm:space-y-2">
-          <div className="text-xl sm:text-2xl font-bold">{value}</div>
+          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</div>
           {(description || effectiveTrendValue) && (
             <div className="flex items-center justify-between">
               {description && (
-                <p className="text-xs text-muted-foreground flex-1 mr-2">{description}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium flex-1 mr-2">{description}</p>
               )}
               {effectiveTrendValue && effectiveTrend && (
                 <div className={`flex items-center gap-1 ${getTrendColor()}`}>
                   {getTrendIcon()}
-                  <span className="text-xs font-medium">{effectiveTrendValue}</span>
+                  <span className="text-xs font-semibold">{effectiveTrendValue}</span>
                 </div>
               )}
             </div>

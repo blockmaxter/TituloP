@@ -1,6 +1,7 @@
 import { getAuth, signOut, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import app from '../lib/firebase';
 import { useState, useEffect } from 'react';
+import { ConnectionDiagnostic } from '../components/ConnectionDiagnostic';
 
 const provider = new GoogleAuthProvider();
 const auth = getAuth(app);
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [resetMsg, setResetMsg] = useState("");
   const [showReset, setShowReset] = useState(false);
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -103,9 +105,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[url('/public/vite.svg')] bg-cover bg-center">
-      <div className="bg-white bg-opacity-90 p-8 rounded shadow-md w-full max-w-sm">
-        <h1 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="bg-white dark:bg-slate-800 bg-opacity-95 dark:bg-opacity-95 p-8 rounded-lg shadow-lg w-full max-w-sm border border-slate-200 dark:border-slate-700">
+        <h1 className="text-2xl font-bold mb-6 text-center text-slate-900 dark:text-slate-100">Iniciar sesión</h1>
         {!showReset ? (
           <form onSubmit={handleEmailLogin} className="flex flex-col gap-4 mb-4">
             <input
@@ -113,7 +115,7 @@ export default function LoginPage() {
               placeholder="Correo electrónico"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="border rounded px-3 py-2 w-full"
+              className="border border-slate-300 dark:border-slate-600 rounded-md px-3 py-2 w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
             <input
@@ -121,12 +123,12 @@ export default function LoginPage() {
               placeholder="Contraseña"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="border rounded px-3 py-2 w-full"
+              className="border border-slate-300 dark:border-slate-600 rounded-md px-3 py-2 w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               required
             />
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 rounded-md transition-colors font-medium"
             >
               Iniciar sesión con correo
             </button>
@@ -173,8 +175,31 @@ export default function LoginPage() {
           </svg>
           Iniciar sesión con Google
         </button>
-        {error && <div className="text-red-600 text-sm mt-2 text-center">{error}</div>}
+        {error && (
+          <div className="text-red-600 text-sm mt-2 text-center">
+            {error}
+            {error.includes("Error de conexión") || error.includes("network") ? (
+              <button
+                onClick={() => setShowDiagnostic(true)}
+                className="block w-full mt-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded hover:bg-orange-200 transition"
+              >
+                🔧 Ejecutar diagnóstico de conectividad
+              </button>
+            ) : null}
+          </div>
+        )}
+        
+        <button
+          onClick={() => setShowDiagnostic(true)}
+          className="w-full mt-4 text-xs bg-gray-100 text-gray-700 px-2 py-2 rounded hover:bg-gray-200 transition"
+        >
+          🔧 Diagnóstico de Conectividad
+        </button>
       </div>
+
+      {showDiagnostic && (
+        <ConnectionDiagnostic onClose={() => setShowDiagnostic(false)} />
+      )}
     </div>
   );
 }

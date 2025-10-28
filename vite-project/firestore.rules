@@ -54,6 +54,14 @@ service cloud.firestore {
       // Solo administradores pueden crear nuevos usuarios
       allow create: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
       
+      // Permitir auto-creación cuando el usuario se autentica por primera vez
+      // Solo si es su propio documento y tiene email @utem.cl
+      allow create: if isAuthenticated() && 
+                       request.auth.uid == userId &&
+                       request.auth.token.email.matches('.*@utem\\.cl$') &&
+                       request.resource.data.email == request.auth.token.email &&
+                       request.resource.data.isActive == true;
+      
       // Solo administradores pueden actualizar roles y estados
       allow update: if hasAnyRole(['super_admin', 'admin']) && 
                        isActiveUser() &&

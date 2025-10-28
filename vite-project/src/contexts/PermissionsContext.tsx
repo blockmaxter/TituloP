@@ -31,41 +31,54 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
   // Función para obtener o crear un usuario en Firestore
   const getUserFromFirestore = async (firebaseUser: User): Promise<UserWithPermissions> => {
     const userDocRef = doc(db, 'users', firebaseUser.uid);
-    const userDoc = await getDoc(userDocRef);
+    
+    console.log('Buscando usuario en Firestore:', firebaseUser.uid);
+    
+    try {
+      const userDoc = await getDoc(userDocRef);
 
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      const userRole = userData.role as UserRole || UserRole.VIEWER;
+      if (userDoc.exists()) {
+        console.log('Usuario encontrado en Firestore');
+        const userData = userDoc.data();
+        const userRole = userData.role as UserRole || UserRole.VIEWER;
       
-      return {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        displayName: firebaseUser.displayName || '',
-        photoURL: firebaseUser.photoURL || '',
-        role: userRole,
-        permissions: ROLE_PERMISSIONS[userRole] || [],
-        isActive: userData.isActive !== false, // Por defecto true
-        createdAt: userData.createdAt?.toDate() || new Date(),
-        updatedAt: userData.updatedAt?.toDate() || new Date()
-      };
-    } else {
-      // Crear nuevo usuario con rol por defecto
-      const defaultRole = determineDefaultRole(firebaseUser.email || '');
-      const now = new Date();
-      
-      const newUser: UserWithPermissions = {
-        uid: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        displayName: firebaseUser.displayName || '',
-        photoURL: firebaseUser.photoURL || '',
-        role: defaultRole,
-        permissions: ROLE_PERMISSIONS[defaultRole],
-        isActive: true,
-        createdAt: now,
-        updatedAt: now
-      };
+        return {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || '',
+          photoURL: firebaseUser.photoURL || '',
+          role: userRole,
+          permissions: ROLE_PERMISSIONS[userRole] || [],
+          isActive: userData.isActive !== false, // Por defecto true
+          createdAt: userData.createdAt?.toDate() || new Date(),
+          updatedAt: userData.updatedAt?.toDate() || new Date()
+        };
+      }
+    } catch (error) {
+      console.error('Error al leer de Firestore:', error);
+      console.log('Continuando con usuario por defecto debido a error de Firestore');
+    }
 
-      // Guardar en Firestore
+    // Si no existe documento o hay error, crear usuario por defecto
+    console.log('Usuario no encontrado o error de Firestore, creando usuario por defecto');
+    const defaultRole = determineDefaultRole(firebaseUser.email || '');
+    const now = new Date();
+    
+    const newUser: UserWithPermissions = {
+      uid: firebaseUser.uid,
+      email: firebaseUser.email || '',
+      displayName: firebaseUser.displayName || '',
+      photoURL: firebaseUser.photoURL || '',
+      role: defaultRole,
+      permissions: ROLE_PERMISSIONS[defaultRole],
+      isActive: true,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    // Intentar guardar en Firestore (puede fallar por permisos)
+    try {
+      console.log('Intentando guardar nuevo usuario en Firestore:', newUser.email, 'con rol:', newUser.role);
       await setDoc(userDocRef, {
         email: newUser.email,
         displayName: newUser.displayName,
@@ -75,9 +88,13 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
         createdAt: now,
         updatedAt: now
       });
-
-      return newUser;
+      console.log('Usuario creado exitosamente en Firestore');
+    } catch (saveError) {
+      console.error('Error al guardar en Firestore:', saveError);
+      console.log('Continuando con usuario en memoria (sin persistir en Firestore)');
     }
+
+    return newUser;
   };
 
   // Determinar rol por defecto basado en el email
@@ -151,37 +168,56 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
       
       if (firebaseUser) {
         try {
+          console.log('Procesando usuario autenticado:', firebaseUser.email);
+          
           // Verificar restricción de dominio para usuarios de UTEM
           if (firebaseUser.email && !firebaseUser.email.endsWith('@utem.cl')) {
+            console.log('Usuario sin dominio @utem.cl, verificando en Firestore...');
             // Permitir algunos emails específicos o usuarios externos con roles asignados
             const userDocRef = doc(db, 'users', firebaseUser.uid);
-            const userDoc = await getDoc(userDocRef);
-            
-            if (!userDoc.exists()) {
-              // Usuario externo sin rol asignado - cerrar sesión
-              await auth.signOut();
-              setUser(null);
-              setLoading(false);
-              return;
+            try {
+              const userDoc = await getDoc(userDocRef);
+              
+              if (!userDoc.exists()) {
+                // Usuario externo sin rol asignado - cerrar sesión
+                console.log('Usuario externo sin rol asignado, cerrando sesión');
+                await auth.signOut();
+                setUser(null);
+                setLoading(false);
+                return;
+              }
+            } catch (firestoreError) {
+              console.error('Error al verificar documento en Firestore:', firestoreError);
+              // En caso de error de Firestore, permitir continuar si es @utem.cl
+              if (!firebaseUser.email.endsWith('@utem.cl')) {
+                await auth.signOut();
+                setUser(null);
+                setLoading(false);
+                return;
+              }
             }
           }
 
+          console.log('Obteniendo datos del usuario:', firebaseUser.email);
           const userWithPermissions = await getUserFromFirestore(firebaseUser);
           
           // Verificar si el usuario está activo
           if (!userWithPermissions.isActive) {
+            console.log('Usuario inactivo, cerrando sesión');
             await auth.signOut();
             setUser(null);
             setLoading(false);
             return;
           }
           
+          console.log('Usuario autenticado exitosamente:', userWithPermissions.email, 'Rol:', userWithPermissions.role);
           setUser(userWithPermissions);
         } catch (error) {
           console.error('Error al obtener datos del usuario:', error);
           setUser(null);
         }
       } else {
+        console.log('No hay usuario autenticado');
         setUser(null);
       }
       
