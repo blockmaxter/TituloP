@@ -12,6 +12,7 @@
     "users:stats": "node scripts/initUsers.js stats",
     "users:cleanup": "node scripts/initUsers.js cleanup",
     "promote:superadmin": "node scripts/promoteUser.js",
+    "grant:superadmin": "node scripts/grantSuperadminToEmail.js",
     "auth:create-test": "node scripts/testEmailAuth.cjs create",
     "auth:test-login": "node scripts/testEmailAuth.cjs test"
   },
