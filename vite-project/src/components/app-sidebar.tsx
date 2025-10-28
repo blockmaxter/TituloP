@@ -1,6 +1,5 @@
 import * as React from "react"
 import {
-  ArrowUpCircleIcon,
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
@@ -158,7 +157,11 @@ export function AppSidebar({ onSectionChange, activeSection, isAuthenticated, on
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#" className="flex items-center">
-                <ArrowUpCircleIcon className="h-5 w-5 flex-shrink-0" />
+                <img 
+                  src="/utem-logo.png" 
+                  alt="UTEM Logo" 
+                  className="h-5 w-5 flex-shrink-0 object-contain" 
+                />
                 <span className="text-base font-semibold truncate">Utem Datos</span>
               </a>
             </SidebarMenuButton>
