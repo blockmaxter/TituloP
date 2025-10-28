@@ -127,6 +127,16 @@ service cloud.firestore {
     // REGLAS PARA CONFIGURACIÓN Y METADATOS
     // ==========================================
     
+    // Configuraciones de usuario individuales
+    match /userSettings/{userId} {
+      // Los usuarios pueden leer y escribir sus propias configuraciones
+      allow read, write: if isAuthenticated() && 
+                            request.auth.uid == userId;
+      
+      // Los administradores pueden leer configuraciones de cualquier usuario
+      allow read: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();
+    }
+    
     match /settings/{settingId} {
       // Solo administradores pueden leer configuraciones
       allow read: if hasAnyRole(['super_admin', 'admin']) && isActiveUser();

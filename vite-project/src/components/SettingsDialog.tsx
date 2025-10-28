@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -63,48 +63,21 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
 }) => {
   const { user } = usePermissions();
   
-  let themeContext;
-  try {
-    themeContext = useTheme();
-  } catch (error) {
-    console.warn('ThemeContext no disponible:', error);
-    themeContext = { theme: 'system' as const, setTheme: () => {} };
-  }
-  
+  // Siempre llamar el hook para cumplir con las reglas de hooks
+  const themeContext = useTheme();
   const { theme, setTheme } = themeContext;
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_USER_SETTINGS);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  const canSave = !saving && !loading && !!user;
 
-  // Debug: Log del estado del botón
-  useEffect(() => {
-    console.log('Estado del botón Guardar cambios:', {
-      saving,
-      loading,
-      hasUser: !!user,
-      shouldBeDisabled: saving || loading || !user
-    });
-  }, [saving, loading, user]);
-
-  // Cargar configuraciones del usuario
-  useEffect(() => {
-    if (user && open) {
-      loadUserSettings();
-    }
-  }, [user, open]);
-
-  // Resetear estados cuando se abre/cierra el diálogo
-  useEffect(() => {
-    if (open) {
-      setSaving(false);
-      setLoading(false);
-    }
-  }, [open]);
-
-  const loadUserSettings = async () => {
+  const loadUserSettings = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
+    console.log('Cargando configuraciones del usuario:', user.uid);
+    
     try {
       const settingsDoc = await getDoc(doc(db, 'userSettings', user.uid));
       if (settingsDoc.exists()) {
@@ -137,13 +110,68 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
           }
         });
       }
-    } catch (error) {
-      console.error('Error loading user settings:', error);
-      toast.error('Error al cargar configuraciones');
+    } catch (error: any) {
+      console.warn('No se pudieron cargar las configuraciones del usuario:', error);
+      
+      // Intentar cargar configuraciones locales como fallback
+      let finalSettings = {
+        ...DEFAULT_USER_SETTINGS,
+        profile: {
+          ...DEFAULT_USER_SETTINGS.profile,
+          displayName: user.displayName || '',
+          email: user.email,
+        }
+      };
+
+      try {
+        const localSettings = localStorage.getItem(`userSettings_${user.uid}`);
+        if (localSettings) {
+          const parsedLocal = JSON.parse(localSettings);
+          finalSettings = {
+            ...finalSettings,
+            ...parsedLocal,
+            profile: {
+              ...finalSettings.profile,
+              ...parsedLocal.profile,
+            }
+          };
+          console.log('Configuraciones cargadas desde localStorage');
+        }
+      } catch (localError) {
+        console.warn('No se pudieron cargar configuraciones locales:', localError);
+      }
+
+      setSettings(finalSettings);
+
+      // Solo mostrar notificaciones para errores críticos inesperados
+      if (error?.code === 'permission-denied' || error?.message?.includes('permission')) {
+        console.log('Permisos insuficientes para Firestore. Usando configuraciones locales/por defecto.');
+      } else if (error?.message?.includes('ERR_BLOCKED_BY_CLIENT')) {
+        console.log('Firestore bloqueado por el navegador. Usando configuraciones locales/por defecto.');
+      } else {
+        // Solo mostrar error para otros tipos de errores críticos
+        console.error('Error inesperado al cargar configuraciones:', error);
+        toast.warning('Usando configuraciones guardadas localmente.');
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, theme, setTheme]);
+
+  // Cargar configuraciones del usuario
+  useEffect(() => {
+    if (user && open) {
+      loadUserSettings();
+    }
+  }, [user, open, loadUserSettings]);
+
+  // Resetear estados cuando se abre/cierra el diálogo
+  useEffect(() => {
+    if (open) {
+      setSaving(false);
+      setLoading(false);
+    }
+  }, [open]);
 
   const saveSettings = async () => {
     if (!user) {
@@ -176,24 +204,39 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
       });
       
       let errorMessage = 'Error al guardar configuración';
+      let useLocalFallback = false;
+      
       if (error instanceof Error) {
         if (error.message.includes('permission-denied')) {
-          errorMessage = 'No tienes permisos para guardar la configuración';
+          errorMessage = 'Configuraciones guardadas localmente (permisos limitados)';
+          useLocalFallback = true;
         } else if (error.message.includes('offline')) {
-          errorMessage = 'Sin conexión a internet. Verifica tu conexión';
+          errorMessage = 'Configuraciones guardadas localmente (sin conexión)';
+          useLocalFallback = true;
         } else if (error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
-          errorMessage = 'Conexión bloqueada. Desactiva el bloqueador de anuncios';
+          errorMessage = 'Configuraciones guardadas localmente (conexión bloqueada)';
+          useLocalFallback = true;
         }
       }
       
-      toast.error(errorMessage);
+      if (useLocalFallback) {
+        // Guardar configuraciones localmente como respaldo
+        try {
+          localStorage.setItem(`userSettings_${user.uid}`, JSON.stringify(settings));
+          toast.success(errorMessage);
+          onOpenChange(false);
+        } catch (localError) {
+          toast.error('No se pudieron guardar las configuraciones');
+        }
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setSaving(false);
     }
   };
 
   const updateSetting = (path: string, value: any) => {
-    console.log(`Actualizando setting: ${path} = ${value}`);
     setSettings(prev => {
       const keys = path.split('.');
       const updated = { ...prev };
@@ -208,8 +251,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
       return updated;
     });
   };
-
-  const canSave = !saving && !loading && !!user;
 
   if (!user) return null;
 

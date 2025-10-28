@@ -16,10 +16,8 @@ import { useState, useEffect } from "react"
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -29,23 +27,21 @@ import {
 } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Toaster } from "@/components/ui/sonner"
-import { ConnectionDiagnostic } from "@/components/ConnectionDiagnostic"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { FloatingNav } from "@/components/floating-nav"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
-import { RoleBadge, PermissionIndicator } from "@/components/UserPermissionIndicators"
+import { RoleBadge } from "@/components/UserPermissionIndicators"
 import { UserManagement } from "@/components/admin/UserManagement"
 import { usePermissions } from "@/contexts/PermissionsContext"
 import { Permission } from "@/types/permissions"
 import AuthWrapper from "@/components/AuthWrapper"
+import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import HomePage from "./pages/index"
 
 function AppContent() {
   const [activeSection, setActiveSection] = useState<string>("dashboard");
   const [showLogin, setShowLogin] = useState(false);
-  const [showDiagnostic, setShowDiagnostic] = useState(false);
   const { user, loading } = usePermissions();
 
   // Intersection Observer para detectar sección activa

@@ -225,6 +225,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({ childr
     });
 
     return () => unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const contextValue: PermissionsContextState = {

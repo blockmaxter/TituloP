@@ -178,6 +178,7 @@ export const ConnectionDiagnostic: React.FC<ConnectionDiagnosticProps> = ({ onCl
 
   useEffect(() => {
     runDiagnostics();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getSolutions = () => {
