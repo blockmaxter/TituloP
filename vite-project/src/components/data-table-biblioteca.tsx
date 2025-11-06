@@ -15,7 +15,13 @@ const columns = [
   { Header: "FACULTAD", accessor: "facultad" },
   { Header: "NOMBRE EMPRESA", accessor: "nombreEmpresa" },
   { Header: "COMUNA", accessor: "comuna" },
-  { Header: "REGIÓN", accessor: "region" },
+  { Header: "JEFE DIRECTO", accessor: "jefeDirecto" },
+  { Header: "EMAIL", accessor: "email" },
+  { Header: "CARGO", accessor: "cargo" },
+  { Header: "SEMESTRE", accessor: "semestre" },
+  { Header: "AÑO PRACTICA", accessor: "anio" },
+  { Header: "AÑO INGRESO", accessor: "anioIngreso" },
+  { Header: "EVALUACION ENVIADA", accessor: "evaluacionEnviada" },
   { Header: "JEFE DIRECTO", accessor: "jefeDirecto" },
   { Header: "EMAIL ESTUDIANTE", accessor: "email" },
   { Header: "EMAIL EMPRESA", accessor: "emailEmpresa" },
@@ -48,6 +54,7 @@ interface StudentData {
   direccionEmpresa: string;
   semestre: string;
   anio: string;
+  anioIngreso: string;
   fechaInicio: string;
   fechaTermino: string;
   horasPractica: string;

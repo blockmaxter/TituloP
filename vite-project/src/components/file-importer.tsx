@@ -26,6 +26,7 @@ interface StudentData {
   direccionEmpresa: string;
   semestre: string;
   anio: string;
+  anioIngreso: string;
   fechaInicio: string;
   fechaTermino: string;
   horasPractica: string;
@@ -93,24 +94,32 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                 'Correo': 'email',
                 'EMAIL ESTUDIANTE': 'email',
                 'Email Estudiante': 'email',
+                'CARGO': 'cargo',
+                'Cargo': 'cargo',
+                'COMUNA': 'comuna',
+                'Comuna': 'comuna',
+                'SEMESTRE': 'semestre',
+                'Semestre': 'semestre',
+                'AÑO PRACTICA': 'anio',
+                'Año Practica': 'anio',
+                'AÑO INGRESO': 'anioIngreso',
+                'Año Ingreso': 'anioIngreso',
+                'EVALUACION ENVIADA': 'evaluacionEnviada',
+                'Evaluacion Enviada': 'evaluacionEnviada',
+                'Evaluación': 'evaluacionEnviada',
+                // Mapeos adicionales para compatibilidad con archivos antiguos
                 'EMAIL EMPRESA': 'emailEmpresa',
                 'Email Empresa': 'emailEmpresa',
                 'Correo Empresa': 'emailEmpresa',
                 'TELEFONO EMPRESA': 'telefonoEmpresa',
                 'Telefono Empresa': 'telefonoEmpresa',
                 'Teléfono Empresa': 'telefonoEmpresa',
-                'CARGO': 'cargo',
-                'Cargo': 'cargo',
-                'COMUNA': 'comuna',
-                'Comuna': 'comuna',
                 'REGION': 'region',
                 'Región': 'region',
                 'Region': 'region',
                 'DIRECCION EMPRESA': 'direccionEmpresa',
                 'Direccion Empresa': 'direccionEmpresa',
                 'Dirección Empresa': 'direccionEmpresa',
-                'SEMESTRE': 'semestre',
-                'Semestre': 'semestre',
                 'AÑO': 'anio',
                 'Año': 'anio',
                 'FECHA INICIO': 'fechaInicio',
@@ -121,9 +130,6 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                 'HORAS PRACTICA': 'horasPractica',
                 'Horas Practica': 'horasPractica',
                 'Horas Práctica': 'horasPractica',
-                'EVALUACION ENVIADA': 'evaluacionEnviada',
-                'Evaluacion Enviada': 'evaluacionEnviada',
-                'Evaluación': 'evaluacionEnviada',
                 'SUPERVISOR': 'supervisor',
                 'Supervisor': 'supervisor',
                 'NOTA PRACTICA': 'notaPractica',
@@ -155,6 +161,7 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                 direccionEmpresa: student.direccionEmpresa || '',
                 semestre: student.semestre || '',
                 anio: student.anio || student.año || '',
+                anioIngreso: student.anioIngreso || '',
                 fechaInicio: student.fechaInicio || '',
                 fechaTermino: student.fechaTermino || '',
                 horasPractica: student.horasPractica || '',
@@ -196,7 +203,8 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
               region: row['REGION'] || row['Región'] || row['Region'] || '',
               direccionEmpresa: row['DIRECCION EMPRESA'] || row['Direccion Empresa'] || row['Dirección Empresa'] || '',
               semestre: row['SEMESTRE'] || row['Semestre'] || '',
-              anio: row['AÑO'] || row['Año'] || '',
+              anio: row['AÑO PRACTICA'] || row['Año Practica'] || row['AÑO'] || row['Año'] || '',
+              anioIngreso: row['AÑO INGRESO'] || row['Año Ingreso'] || '',
               fechaInicio: row['FECHA INICIO'] || row['Fecha Inicio'] || '',
               fechaTermino: row['FECHA TERMINO'] || row['Fecha Termino'] || row['Fecha Término'] || '',
               horasPractica: row['HORAS PRACTICA'] || row['Horas Practica'] || row['Horas Práctica'] || '',
@@ -390,10 +398,11 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                         <th className="px-2 py-1 text-left">Nombre</th>
                         <th className="px-2 py-1 text-left">RUT</th>
                         <th className="px-2 py-1 text-left">Carrera</th>
-                        <th className="px-2 py-1 text-left">Facultad</th>
                         <th className="px-2 py-1 text-left">Empresa</th>
-                        <th className="px-2 py-1 text-left">Comuna</th>
-                        <th className="px-2 py-1 text-left">Email</th>
+                        <th className="px-2 py-1 text-left">Cargo</th>
+                        <th className="px-2 py-1 text-left">Semestre</th>
+                        <th className="px-2 py-1 text-left">Año Práctica</th>
+                        <th className="px-2 py-1 text-left">Evaluación</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -402,10 +411,11 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                           <td className="px-2 py-1">{student.nombreEstudiante}</td>
                           <td className="px-2 py-1">{student.rut}</td>
                           <td className="px-2 py-1">{student.carrera}</td>
-                          <td className="px-2 py-1">{student.facultad}</td>
                           <td className="px-2 py-1">{student.nombreEmpresa}</td>
-                          <td className="px-2 py-1">{student.comuna}</td>
-                          <td className="px-2 py-1">{student.email}</td>
+                          <td className="px-2 py-1">{student.cargo}</td>
+                          <td className="px-2 py-1">{student.semestre}</td>
+                          <td className="px-2 py-1">{student.anio}</td>
+                          <td className="px-2 py-1">{student.evaluacionEnviada}</td>
                         </tr>
                       ))}
                     </tbody>

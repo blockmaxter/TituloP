@@ -19,6 +19,7 @@ interface StudentData {
   direccionEmpresa: string;
   semestre: string;
   anio: string;
+  anioIngreso: string;
   fechaInicio: string;
   fechaTermino: string;
   horasPractica: string;
