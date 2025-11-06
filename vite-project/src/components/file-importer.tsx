@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileSpreadsheet, FileText, CheckCircle, AlertCircle, X } from 'lucide-react';
-import { collection, addDoc, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 interface StudentData {
@@ -69,7 +69,7 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
           
           const processedData: StudentData[] = rows
             .filter(row => row.some(cell => cell !== null && cell !== undefined && cell !== ''))
-            .map((row, index) => {
+            .map((row) => {
               const student: any = {};
               
               // Mapear columnas basándose en posición o nombre de encabezado
@@ -319,129 +319,178 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+    <div className="space-y-6">
+      <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-indigo-50">
+        <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-t-lg">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+              <Upload className="h-6 w-6" />
+            </div>
             Importar Datos de Estudiantes
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-indigo-100 text-base mt-2">
             Sube un archivo Excel (.xlsx, .xls) o CSV con los datos de los estudiantes.
             Los datos se sincronizarán automáticamente con Firebase.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <CardContent className="p-6 space-y-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-6">
             <div className="flex-1">
-              <Input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileUpload}
-                disabled={isLoading}
-                className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+              <div className="relative">
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileUpload}
+                  disabled={isLoading}
+                  className="w-full h-14 text-sm file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-blue-600 file:to-indigo-600 file:text-white hover:file:from-blue-700 hover:file:to-indigo-700 file:shadow-md file:transition-all file:duration-200 border-2 border-dashed border-gray-300 hover:border-blue-400 bg-gray-50 hover:bg-blue-50 transition-all duration-200 rounded-lg"
+                />
+                {isLoading && (
+                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
+                    <div className="flex items-center gap-3 text-blue-600">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+                      <span className="font-medium">Procesando...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
-              <Badge variant="outline" className="text-xs">
-                <FileSpreadsheet className="h-3 w-3 mr-1" />
-                Excel
+            <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+              <Badge variant="outline" className="px-3 py-2 bg-emerald-50 text-emerald-700 border-emerald-200 font-medium">
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Excel (.xlsx, .xls)
               </Badge>
-              <Badge variant="outline" className="text-xs">
-                <FileText className="h-3 w-3 mr-1" />
-                CSV
+              <Badge variant="outline" className="px-3 py-2 bg-blue-50 text-blue-700 border-blue-200 font-medium">
+                <FileText className="h-4 w-4 mr-2" />
+                CSV (.csv)
               </Badge>
             </div>
           </div>
 
-          {isLoading && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Procesando archivo, por favor espere...
-              </AlertDescription>
-            </Alert>
-          )}
-
           {uploadStatus === 'success' && (
-            <Alert className="border-green-200 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">
+            <Alert className="border-emerald-200 bg-gradient-to-r from-emerald-50 to-green-50 shadow-md">
+              <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <AlertDescription className="text-emerald-800 font-medium text-base">
                 {statusMessage}
               </AlertDescription>
             </Alert>
           )}
 
           {uploadStatus === 'error' && (
-            <Alert className="border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">
+            <Alert className="border-red-200 bg-gradient-to-r from-red-50 to-rose-50 shadow-md">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <AlertDescription className="text-red-800 font-medium text-base">
                 {statusMessage}
               </AlertDescription>
             </Alert>
           )}
 
           {showPreview && (
-            <Card className="border-blue-200 bg-blue-50">
-              <CardHeader>
-                <CardTitle className="text-lg">Vista Previa de Datos</CardTitle>
-                <CardDescription>
+            <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                    👁️
+                  </div>
+                  Vista Previa de Datos
+                </CardTitle>
+                <CardDescription className="text-blue-100 text-lg">
                   Se encontraron {previewData.length} registros. Revisa los datos antes de importar.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="max-h-60 overflow-y-auto border rounded-md bg-white">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th className="px-2 py-1 text-left">Nombre</th>
-                        <th className="px-2 py-1 text-left">RUT</th>
-                        <th className="px-2 py-1 text-left">Carrera</th>
-                        <th className="px-2 py-1 text-left">Empresa</th>
-                        <th className="px-2 py-1 text-left">Cargo</th>
-                        <th className="px-2 py-1 text-left">Semestre</th>
-                        <th className="px-2 py-1 text-left">Año Práctica</th>
-                        <th className="px-2 py-1 text-left">Evaluación</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {previewData.slice(0, 10).map((student, index) => (
-                        <tr key={index} className="border-b">
-                          <td className="px-2 py-1">{student.nombreEstudiante}</td>
-                          <td className="px-2 py-1">{student.rut}</td>
-                          <td className="px-2 py-1">{student.carrera}</td>
-                          <td className="px-2 py-1">{student.nombreEmpresa}</td>
-                          <td className="px-2 py-1">{student.cargo}</td>
-                          <td className="px-2 py-1">{student.semestre}</td>
-                          <td className="px-2 py-1">{student.anio}</td>
-                          <td className="px-2 py-1">{student.evaluacionEnviada}</td>
+              <CardContent className="p-6">
+                {/* Vista de tabla para desktop */}
+                <div className="hidden lg:block">
+                  <div className="max-h-80 overflow-auto border border-gray-200 rounded-xl bg-white shadow-inner">
+                    <table className="min-w-full text-sm">
+                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Nombre</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">RUT</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Carrera</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Empresa</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Cargo</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Semestre</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Estado</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  {previewData.length > 10 && (
-                    <div className="p-2 text-center text-gray-500">
-                      ... y {previewData.length - 10} registros más
-                    </div>
-                  )}
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {previewData.slice(0, 10).map((student, index) => (
+                          <tr key={index} className="hover:bg-blue-50/50 transition-colors">
+                            <td className="px-4 py-3 font-medium text-gray-900">{student.nombreEstudiante}</td>
+                            <td className="px-4 py-3 text-gray-700">{student.rut}</td>
+                            <td className="px-4 py-3 text-gray-700">{student.carrera}</td>
+                            <td className="px-4 py-3 text-gray-700">{student.nombreEmpresa}</td>
+                            <td className="px-4 py-3 text-gray-700">{student.cargo}</td>
+                            <td className="px-4 py-3 text-center">
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                {student.semestre}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge className={student.evaluacionEnviada === 'Si' || student.evaluacionEnviada === 'Sí' ? 
+                                'bg-emerald-100 text-emerald-800 border-emerald-200' : 
+                                'bg-amber-100 text-amber-800 border-amber-200'
+                              }>
+                                {student.evaluacionEnviada || 'No'}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2 mt-4">
+
+                {/* Vista de cards para móvil y tablet */}
+                <div className="lg:hidden space-y-4 max-h-80 overflow-y-auto">
+                  {previewData.slice(0, 5).map((student, index) => (
+                    <Card key={index} className="border-l-4 border-l-blue-500 bg-white shadow-md">
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-bold text-gray-900">{student.nombreEstudiante}</h4>
+                            <Badge className={student.evaluacionEnviada === 'Si' || student.evaluacionEnviada === 'Sí' ? 
+                              'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            }>
+                              {student.evaluacionEnviada || 'No'}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <div><strong>RUT:</strong> {student.rut}</div>
+                            <div><strong>Carrera:</strong> {student.carrera}</div>
+                            <div><strong>Empresa:</strong> {student.nombreEmpresa}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {previewData.length > (window.innerWidth >= 1024 ? 10 : 5) && (
+                  <div className="mt-4 p-3 text-center bg-blue-100 text-blue-800 rounded-lg font-medium">
+                    ... y {previewData.length - (window.innerWidth >= 1024 ? 10 : 5)} registros más
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-4 mt-6 pt-6 border-t border-gray-200">
                   <Button 
                     onClick={confirmImport} 
                     disabled={isLoading}
-                    className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
+                    size="lg"
+                    className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 flex-1 sm:flex-none"
                   >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Confirmar Importación
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Confirmar Importación ({previewData.length} registros)
                   </Button>
                   <Button 
                     variant="outline" 
                     onClick={cancelImport}
                     disabled={isLoading}
-                    className="flex-1 sm:flex-none"
+                    size="lg"
+                    className="border-gray-300 hover:bg-gray-50 flex-1 sm:flex-none"
                   >
-                    <X className="h-4 w-4 mr-2" />
+                    <X className="h-5 w-5 mr-2" />
                     Cancelar
                   </Button>
                 </div>

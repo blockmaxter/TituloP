@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { DataTableBiblioteca } from "@/components/data-table-biblioteca"
 import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
-import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-layout"
+import { ResponsiveContainer, SectionHeader, GridLayout } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
 import { PracticasTendenciaChart } from "@/components/charts/practicas-tendencia-chart"
@@ -97,11 +97,12 @@ function AppContent() {
 
   const renderDashboardSection = () => (
     <ProtectedRoute requiredPermissions={[Permission.VIEW_DASHBOARD]} showError={false}>
-      <section id="dashboard" className="min-h-screen py-8">
-        <ResponsiveContainer>
+      <section id="dashboard" className="min-h-screen">
+        <ResponsiveContainer padding="lg" background="gradient">
           <SectionHeader 
             title="Dashboard Ejecutivo" 
             description="Vista general del estado de las prácticas profesionales y estudiantes"
+            size="lg"
           />
           
           <MetricGrid className="mb-8">
@@ -131,16 +132,20 @@ function AppContent() {
             />
           </MetricGrid>
 
-          <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          <GridLayout 
+            cols={{ default: 1, lg: 2 }} 
+            gap="lg" 
+            className="mb-8"
+          >
             <EstudiantesPorCarreraChart />
             <EvaluacionesChart />
-          </div>
+          </GridLayout>
 
           <ProtectedRoute requiredPermissions={[Permission.VIEW_DETAILED_ANALYTICS]} fallback={null}>
-            <div className="grid lg:grid-cols-2 gap-6">
+            <GridLayout cols={{ default: 1, lg: 2 }} gap="lg">
               <PracticasTendenciaChart />
               <NotasPracticaChart />
-            </div>
+            </GridLayout>
           </ProtectedRoute>
         </ResponsiveContainer>
       </section>
@@ -149,20 +154,25 @@ function AppContent() {
 
   const renderBibliotecaSection = () => (
     <ProtectedRoute requiredPermissions={[Permission.VIEW_DATA_LIBRARY]} showError={false}>
-      <section id="biblioteca-de-datos" className="min-h-screen py-8 bg-muted/30">
-        <ResponsiveContainer>
+      <section id="biblioteca-de-datos" className="min-h-screen">
+        <ResponsiveContainer padding="lg" background="paper">
           <SectionHeader 
             title="Biblioteca de Datos" 
             description="Gestión y análisis de información de estudiantes y prácticas"
+            size="lg"
           />
           
-          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <GridLayout 
+            cols={{ default: 1, md: 2, lg: 3 }} 
+            gap="lg" 
+            className="mb-8"
+          >
             <ContratacionesChart />
             <EstudiantesPorComunaChart />
             <EstadoPracticasChart />
-          </div>
+          </GridLayout>
 
-          <Card>
+          <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Tabla de Datos de Estudiantes</CardTitle>
               <CardDescription>
@@ -180,21 +190,26 @@ function AppContent() {
 
   const renderCicloVidaSection = () => (
     <ProtectedRoute requiredPermissions={[Permission.VIEW_LIFECYCLE]} showError={false}>
-      <section id="ciclo-vida" className="min-h-screen py-8">
-        <ResponsiveContainer>
+      <section id="ciclo-vida" className="min-h-screen">
+        <ResponsiveContainer padding="lg" background="gradient">
           <SectionHeader 
             title="Ciclo de Vida de Prácticas" 
             description="Seguimiento temporal y evolutivo de las prácticas profesionales"
+            size="lg"
           />
           
-          <div className="grid lg:grid-cols-2 gap-6 mb-8">
+          <GridLayout 
+            cols={{ default: 1, lg: 2 }} 
+            gap="lg" 
+            className="mb-8"
+          >
             <TimelinePracticasChart />
             <DuracionPracticasChart />
-          </div>
+          </GridLayout>
 
-          <div className="grid lg:grid-cols-1 gap-6">
+          <GridLayout cols={{ default: 1 }} gap="lg">
             <SeguimientoPracticasChart />
-          </div>
+          </GridLayout>
         </ResponsiveContainer>
       </section>
     </ProtectedRoute>
@@ -202,15 +217,16 @@ function AppContent() {
 
   const renderAnaliticaSection = () => (
     <ProtectedRoute requiredPermissions={[Permission.VIEW_ANALYTICS]} showError={false}>
-      <section id="analitica" className="min-h-screen py-8 bg-muted/30">
-        <ResponsiveContainer>
+      <section id="analitica" className="min-h-screen">
+        <ResponsiveContainer padding="lg" background="glass">
           <SectionHeader 
             title="Analítica Avanzada" 
             description="Insights profundos y tendencias de las prácticas profesionales"
+            size="lg"
           />
           
           <div className="space-y-8">
-            <Card>
+            <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
               <CardHeader>
                 <CardTitle>Análisis Interactivo de Tendencias</CardTitle>
                 <CardDescription>
@@ -223,8 +239,8 @@ function AppContent() {
             </Card>
 
             <ProtectedRoute requiredPermissions={[Permission.VIEW_DETAILED_ANALYTICS]} fallback={
-              <Card>
-                <CardContent className="flex items-center justify-center py-8">
+              <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
+                <CardContent className="flex items-center justify-center py-12">
                   <div className="text-center">
                     <h3 className="text-lg font-semibold mb-2">Analítica Detallada</h3>
                     <p className="text-muted-foreground">
@@ -234,8 +250,8 @@ function AppContent() {
                 </CardContent>
               </Card>
             }>
-              <div className="grid lg:grid-cols-2 gap-6">
-                <Card>
+              <GridLayout cols={{ default: 1, lg: 2 }} gap="lg">
+                <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
                   <CardHeader>
                     <CardTitle>Predicciones de Rendimiento</CardTitle>
                     <CardDescription>
@@ -249,7 +265,7 @@ function AppContent() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
                   <CardHeader>
                     <CardTitle>Análisis de Correlaciones</CardTitle>
                     <CardDescription>
@@ -262,7 +278,7 @@ function AppContent() {
                     </div>
                   </CardContent>
                 </Card>
-              </div>
+              </GridLayout>
             </ProtectedRoute>
           </div>
         </ResponsiveContainer>
@@ -272,11 +288,12 @@ function AppContent() {
 
   const renderAdminSection = () => (
     <ProtectedRoute requiredPermissions={[Permission.MANAGE_USERS]} showError={false}>
-      <section id="admin" className="min-h-screen py-8">
-        <ResponsiveContainer>
+      <section id="admin" className="min-h-screen">
+        <ResponsiveContainer padding="lg" background="paper">
           <SectionHeader 
             title="Administración" 
             description="Gestión de usuarios, roles y permisos del sistema"
+            size="lg"
           />
           
           <UserManagement />

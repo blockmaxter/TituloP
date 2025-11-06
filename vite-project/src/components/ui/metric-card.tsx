@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
@@ -39,36 +39,34 @@ export function MetricCard({
     }
   };
 
-  const getTrendColor = () => {
-    switch (effectiveTrend) {
-      case 'up':
-        return 'text-emerald-600 dark:text-emerald-400';
-      case 'down':
-        return 'text-red-600 dark:text-red-400';
-      case 'neutral':
-        return 'text-slate-500 dark:text-slate-400';
-      default:
-        return 'text-slate-500 dark:text-slate-400';
-    }
-  };
+
 
   return (
-    <Card className={className}>
-      <CardHeader className="pb-2 sm:pb-3">
-        <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">{title}</CardTitle>
+    <Card className={`relative overflow-hidden border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${className}`}>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-indigo-500/5" />
+      <CardHeader className="relative pb-2 sm:pb-3">
+        <CardTitle className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-1 sm:space-y-2">
-          <div className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</div>
+      <CardContent className="relative pt-0">
+        <div className="space-y-2 sm:space-y-3">
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-gray-100 dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+            {value}
+          </div>
           {(description || effectiveTrendValue) && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-2">
               {description && (
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium flex-1 mr-2">{description}</p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium flex-1 leading-tight">{description}</p>
               )}
               {effectiveTrendValue && effectiveTrend && (
-                <div className={`flex items-center gap-1 ${getTrendColor()}`}>
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                  effectiveTrend === 'up' 
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : effectiveTrend === 'down'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                }`}>
                   {getTrendIcon()}
-                  <span className="text-xs font-semibold">{effectiveTrendValue}</span>
+                  <span>{effectiveTrendValue}</span>
                 </div>
               )}
             </div>
@@ -86,7 +84,7 @@ interface MetricGridProps {
 
 export function MetricGrid({ children, className = "" }: MetricGridProps) {
   return (
-    <div className={`grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${className}`}>
+    <div className={`grid gap-4 sm:gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-fr ${className}`}>
       {children}
     </div>
   );

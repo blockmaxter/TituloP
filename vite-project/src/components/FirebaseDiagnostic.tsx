@@ -6,11 +6,10 @@ import { usePermissions } from '@/contexts/PermissionsContext';
 import { getAllUsers } from '@/lib/userPermissions';
 import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserRole, Permission, ROLE_LABELS } from '@/types/permissions';
+import { UserRole, Permission } from '@/types/permissions';
 import { 
   Shield, 
   Database, 
-  User, 
   CheckCircle, 
   XCircle, 
   AlertCircle,
@@ -54,7 +53,7 @@ export const FirebaseDiagnostic: React.FC = () => {
       if (currentUser.permissions.includes(Permission.MANAGE_USERS) || currentUser.role === UserRole.SUPER_ADMIN) {
         addResult('Permisos', 'success', '✅ Tiene permisos para gestionar usuarios');
       } else {
-        addResult('Permisos', 'warning', `⚠️ Rol actual (${ROLE_LABELS[currentUser.role]}) podría no tener permisos suficientes`);
+        addResult('Permisos', 'warning', `⚠️ Rol actual (${currentUser.role}) podría no tener permisos suficientes`);
       }
 
       // Test 3: Conectividad con Firestore
@@ -63,7 +62,7 @@ export const FirebaseDiagnostic: React.FC = () => {
         await setDoc(testDoc, { timestamp: new Date() });
         addResult('Firestore Write', 'success', '✅ Puede escribir en Firestore');
       } catch (error) {
-        addResult('Firestore Write', 'error', `❌ Error de escritura: ${error.message}`);
+        addResult('Firestore Write', 'error', `❌ Error de escritura: ${error instanceof Error ? error.message : 'Error desconocido'}`);
       }
 
       // Test 4: Leer colección de usuarios
@@ -79,7 +78,7 @@ export const FirebaseDiagnostic: React.FC = () => {
           }))
         });
       } catch (error) {
-        addResult('Leer Usuarios', 'error', `❌ Error al leer usuarios: ${error.message}`);
+        addResult('Leer Usuarios', 'error', `❌ Error al leer usuarios: ${error instanceof Error ? error.message : 'Error desconocido'}`);
       }
 
       // Test 5: Verificar si el usuario actual existe en Firestore
@@ -105,11 +104,11 @@ export const FirebaseDiagnostic: React.FC = () => {
             });
             addResult('Crear Usuario', 'success', '✅ Usuario creado exitosamente en Firestore');
           } catch (createError) {
-            addResult('Crear Usuario', 'error', `❌ Error al crear usuario: ${createError.message}`);
+            addResult('Crear Usuario', 'error', `❌ Error al crear usuario: ${createError instanceof Error ? createError.message : 'Error desconocido'}`);
           }
         }
       } catch (error) {
-        addResult('Usuario en DB', 'error', `❌ Error verificando usuario: ${error.message}`);
+        addResult('Usuario en DB', 'error', `❌ Error verificando usuario: ${error instanceof Error ? error.message : 'Error desconocido'}`);
       }
 
       // Test 6: Función getAllUsers
@@ -120,11 +119,11 @@ export const FirebaseDiagnostic: React.FC = () => {
           users: users.slice(0, 3).map(u => ({ email: u.email, role: u.role }))
         });
       } catch (error) {
-        addResult('getAllUsers()', 'error', `❌ Error en getAllUsers(): ${error.message}`);
+        addResult('getAllUsers()', 'error', `❌ Error en getAllUsers(): ${error instanceof Error ? error.message : 'Error desconocido'}`);
       }
 
     } catch (error) {
-      addResult('General', 'error', `❌ Error general: ${error.message}`);
+      addResult('General', 'error', `❌ Error general: ${error instanceof Error ? error.message : 'Error desconocido'}`);
     } finally {
       setTesting(false);
     }

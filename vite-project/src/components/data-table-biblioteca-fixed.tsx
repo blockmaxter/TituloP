@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import * as React from "react"
+import { useState } from "react"
 import { FileImporter } from "./file-importer"
 import { useFirebaseData } from "@/hooks/useFirebaseData"
 import { Button } from "./ui/button"
@@ -54,7 +55,7 @@ export function DataTableBiblioteca() {
   const { data, loading, error, refreshData } = useFirebaseData();
   const [showImporter, setShowImporter] = useState(false);
 
-  const handleDataImported = () => {
+  const handleDataImported = (importedData: StudentData[]) => {
     setShowImporter(false);
     // Los datos se actualizarán automáticamente gracias al listener de Firebase
   };
