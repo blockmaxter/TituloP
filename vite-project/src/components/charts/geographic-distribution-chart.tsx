@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { useFirebaseData } from "@/hooks/useFirebaseData"
 import { MapPin, Building, Users, Navigation, Search, X, User } from "lucide-react"
 import { findCoordinates, chileCenterCoordinates } from "@/utils/chile-coordinates"
+import "./geographic-map-animations.css"
+import { verificarFuncionalidadesMapa } from "@/utils/verificacion-mapa-geografico"
 
 interface ComunaData {
   name: string;
@@ -45,6 +47,9 @@ export function GeographicDistributionChart() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [selectedStudent, setSelectedStudent] = useState<StudentData | null>(null)
   const [showSearchResults, setShowSearchResults] = useState<boolean>(false)
+  const [mapZoom, setMapZoom] = useState<{ lat: number; lng: number; zoom: number } | null>(null)
+  const [highlightedComuna, setHighlightedComuna] = useState<string | null>(null)
+  const [previouslyHighlighted, setPreviouslyHighlighted] = useState<string | null>(null)
 
   const comunaData = React.useMemo(() => {
     if (!data || data.length === 0) return []
@@ -108,6 +113,15 @@ export function GeographicDistributionChart() {
     setShowSearchResults(true);
   };
 
+  // Verificación de funcionalidades del mapa
+  React.useEffect(() => {
+    if (data && data.length > 0) {
+      setTimeout(() => {
+        verificarFuncionalidadesMapa();
+      }, 2000);
+    }
+  }, [data]);
+
   // Manejar búsqueda en tiempo real
   React.useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -119,14 +133,41 @@ export function GeographicDistributionChart() {
 
   // Función para seleccionar un estudiante y mostrar su ubicación
   const handleSelectStudent = (student: StudentData) => {
+    // Restaurar el estilo del estudiante anterior
+    if (selectedStudent && selectedStudent.comuna !== student.comuna) {
+      setPreviouslyHighlighted(selectedStudent.comuna);
+    }
+    
     setSelectedStudent(student);
     setShowSearchResults(false);
     setSearchQuery('');
     
     // Buscar y seleccionar la comuna del estudiante
     const studentComuna = comunaData.find(c => c.name === (student.comuna || 'Sin especificar'));
-    if (studentComuna) {
+    if (studentComuna && studentComuna.coordinates) {
       setSelectedComuna(studentComuna);
+      
+      // Configurar zoom hacia la comuna del estudiante
+      setMapZoom({
+        lat: studentComuna.coordinates.lat,
+        lng: studentComuna.coordinates.lng,
+        zoom: 12
+      });
+      
+      // Resaltar la nueva comuna
+      setHighlightedComuna(student.comuna);
+      
+      // Crear animación de zoom suave
+      setTimeout(() => {
+        const mapElement = document.getElementById('chile-map');
+        if (mapElement) {
+          mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    } else {
+      // Si no se encuentra la comuna, limpiar el zoom
+      setMapZoom(null);
+      setHighlightedComuna(null);
     }
   };
 
@@ -137,6 +178,10 @@ export function GeographicDistributionChart() {
     setShowSearchResults(false);
     setSelectedStudent(null);
     setSelectedComuna(null);
+    setMapZoom(null);
+    setHighlightedComuna(null);
+    setPreviouslyHighlighted(null);
+    
     // Enfocar de nuevo el input de búsqueda
     setTimeout(() => {
       const searchInput = document.querySelector('input[placeholder*="Busca por"]') as HTMLInputElement;
@@ -624,24 +669,54 @@ export function GeographicDistributionChart() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Controles de zoom */}
+          {mapZoom && (
+            <div className="mb-4 flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+              <div className="flex items-center gap-2 flex-1">
+                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-blue-700 dark:text-blue-300 text-sm font-medium">
+                  🔍 Enfocado en {highlightedComuna}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setMapZoom(null);
+                  setHighlightedComuna(null);
+                  setPreviouslyHighlighted(selectedStudent?.comuna || null);
+                }}
+                className="text-xs border-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800"
+              >
+                🌎 Vista completa
+              </Button>
+            </div>
+          )}
+          
           {/* Mapa embebido con OpenStreetMap */}
-          <div className="h-96 mb-4 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="h-96 mb-4 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 map-zoom-transition">
             <div 
               id="chile-map" 
-              className="w-full h-full relative bg-gray-100 dark:bg-gray-800"
+              className="w-full h-full relative bg-gray-100 dark:bg-gray-800 map-zoom-transition"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Ccircle cx='50' cy='50' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                backgroundSize: '20px 20px'
+                backgroundSize: '20px 20px',
+                transform: mapZoom ? 'scale(1.02)' : 'scale(1)',
+                filter: mapZoom ? 'brightness(1.1) contrast(1.1)' : 'brightness(1) contrast(1)'
               }}
             >
               {/* Iframe con mapa de OpenStreetMap */}
               <iframe
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=-75.6441,-56.5386,-66.0986,-17.5098&layer=mapnik&marker=${chileCenterCoordinates.lat}%2C${chileCenterCoordinates.lng}`}
+                key={mapZoom ? `${mapZoom.lat}-${mapZoom.lng}-${mapZoom.zoom}` : 'default'}
+                src={mapZoom 
+                  ? `https://www.openstreetmap.org/export/embed.html?bbox=${mapZoom.lng-0.5},${mapZoom.lat-0.5},${mapZoom.lng+0.5},${mapZoom.lat+0.5}&layer=mapnik&marker=${mapZoom.lat}%2C${mapZoom.lng}`
+                  : `https://www.openstreetmap.org/export/embed.html?bbox=-75.6441,-56.5386,-66.0986,-17.5098&layer=mapnik&marker=${chileCenterCoordinates.lat}%2C${chileCenterCoordinates.lng}`
+                }
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                style={{ border: 0, transition: 'all 0.5s ease-in-out' }}
                 loading="lazy"
-                title="Mapa de Chile - OpenStreetMap"
+                title={mapZoom ? `Mapa enfocado en ${highlightedComuna}` : "Mapa de Chile - OpenStreetMap"}
               />
               
               {/* Overlay con marcadores virtuales */}
@@ -653,18 +728,23 @@ export function GeographicDistributionChart() {
                   const lngPercent = ((comuna.coordinates!.lng + 75.6441) / (-66.0986 + 75.6441)) * 100;
                   
                   return (
-                    <div className="absolute" style={{
-                      left: `${Math.min(Math.max(lngPercent, 5), 95)}%`,
-                      top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`,
-                      transform: 'translate(-50%, -50%)',
-                      zIndex: 30
-                    }}>
-                      {/* Pulso animado de fondo */}
-                      <div className="absolute w-16 h-16 bg-blue-400 rounded-full opacity-30 animate-ping"></div>
-                      <div className="absolute w-12 h-12 bg-blue-500 rounded-full opacity-50 animate-pulse"></div>
-                      {/* Marcador principal */}
-                      <div className="relative w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-white text-sm font-bold pointer-events-auto cursor-pointer hover:scale-110 transition-all duration-300">
-                        👤
+                    <div 
+                      className="absolute student-marker-enter student-marker-pulse marker-highlight" 
+                      style={{
+                        left: `${Math.min(Math.max(lngPercent, 5), 95)}%`,
+                        top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`,
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 30
+                      }}
+                    >
+                      {/* Múltiples anillos de pulso para mayor impacto visual */}
+                      <div className="absolute w-20 h-20 bg-blue-300 rounded-full opacity-20 animate-ping" style={{ animationDuration: '2s' }}></div>
+                      <div className="absolute w-16 h-16 bg-blue-400 rounded-full opacity-30 animate-ping" style={{ animationDuration: '1.5s' }}></div>
+                      <div className="absolute w-12 h-12 bg-blue-500 rounded-full opacity-40 animate-pulse" style={{ animationDuration: '1s' }}></div>
+                      
+                      {/* Marcador principal mejorado */}
+                      <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 rounded-full border-4 border-white shadow-2xl flex items-center justify-center text-white text-lg font-bold pointer-events-auto cursor-pointer hover:scale-125 transition-all duration-300 hover:shadow-blue-500/50 student-marker-heartbeat">
+                        🎓
                       </div>
                       {/* Etiqueta del estudiante */}
                       <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shadow-lg border border-blue-500">
@@ -691,17 +771,36 @@ export function GeographicDistributionChart() {
                   const isSelectedStudentComuna = selectedStudent && comuna.name === selectedStudent.comuna;
                   if (isSelectedStudentComuna) return null;
                   
-                  const color = index < 3 ? 'bg-red-500' : index < 6 ? 'bg-yellow-500' : 'bg-green-500';
+                  // Determinar si esta comuna debe estar resaltada (fue previamente seleccionada)
+                  const isPreviouslyHighlighted = previouslyHighlighted === comuna.name;
+                  const isCurrentlySelected = selectedComuna?.name === comuna.name;
+                  
+                  // Colores con diferentes intensidades según el estado
+                  let color;
+                  if (isPreviouslyHighlighted) {
+                    color = 'bg-gray-400 border-gray-300'; // Color atenuado para los anteriormente resaltados
+                  } else if (isCurrentlySelected) {
+                    color = 'bg-purple-600 border-purple-400'; // Color especial para seleccionado
+                  } else {
+                    color = index < 3 ? 'bg-red-500' : index < 6 ? 'bg-yellow-500' : 'bg-green-500';
+                  }
                   
                   return (
                     <div
                       key={comuna.name}
-                      className={`absolute w-6 h-6 ${color} rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white text-xs font-bold transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-pointer hover:scale-110 transition-all duration-300 z-10`}
+                      className={`absolute w-6 h-6 ${color} rounded-full border-2 ${isPreviouslyHighlighted ? 'border-gray-300' : 'border-white'} shadow-lg flex items-center justify-center text-white text-xs font-bold transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-pointer hover:scale-125 transition-all duration-500 z-10 ${
+                        isCurrentlySelected ? 'animate-pulse shadow-purple-500/50' : ''
+                      } ${
+                        isPreviouslyHighlighted ? 'opacity-70' : 'opacity-100'
+                      }`}
                       style={{
                         left: `${Math.min(Math.max(lngPercent, 5), 95)}%`,
-                        top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`
+                        top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`,
+                        transform: `translate(-50%, -50%) ${
+                          isPreviouslyHighlighted ? 'scale(0.9)' : isCurrentlySelected ? 'scale(1.1)' : 'scale(1)'
+                        }`
                       }}
-                      title={`${comuna.name}: ${comuna.studentCount} estudiantes`}
+                      title={`${comuna.name}: ${comuna.studentCount} estudiantes ${isPreviouslyHighlighted ? '(anteriormente seleccionada)' : ''}`}
                       onClick={() => setSelectedComuna(selectedComuna?.name === comuna.name ? null : comuna)}
                     >
                       {comuna.studentCount}
@@ -734,7 +833,7 @@ export function GeographicDistributionChart() {
             </div>
             {selectedStudent && (
               <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-2">
                   <div className="relative">
                     <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse"></div>
                     <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-30"></div>
@@ -743,6 +842,18 @@ export function GeographicDistributionChart() {
                     👤 Estudiante seleccionado: {selectedStudent.nombreEstudiante}
                   </span>
                 </div>
+                {mapZoom && (
+                  <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>🔍 Mapa enfocado en {selectedStudent.comuna}</span>
+                  </div>
+                )}
+                {!comunaData.find(c => c.name === selectedStudent.comuna)?.coordinates && (
+                  <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                    <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+                    <span>⚠️ Ubicación no disponible para {selectedStudent.comuna}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -1,0 +1,144 @@
+/* Animaciones personalizadas para el mapa geográfico */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(-180deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15) rotate(-90deg);
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(0.95) rotate(-30deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 40%, 80%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  20%, 60% {
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+/* Clases de utilidad para animaciones */
+.student-marker-enter {
+  animation: bounceIn 0.8s ease-out;
+}
+
+.student-marker-pulse {
+  animation: pulseGlow 2s infinite;
+}
+
+.student-marker-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.map-zoom-transition {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.marker-fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+}
+
+.marker-highlight {
+  position: relative;
+}
+
+.marker-highlight::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 1.5s ease-out infinite;
+  z-index: -1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .student-marker-pulse,
+  .marker-highlight::before {
+    animation-duration: 1s;
+  }
+}
+
+/* Accessibility - respeta las preferencias del usuario sobre animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .student-marker-enter,
+  .student-marker-pulse,
+  .student-marker-heartbeat,
+  .marker-highlight::before {
+    animation: none;
+  }
+  
+  .map-zoom-transition {
+    transition: none;
+  }
+}
