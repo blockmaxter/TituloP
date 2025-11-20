@@ -6,8 +6,8 @@ import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-l
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
 import { PracticasTendenciaChart } from "@/components/charts/practicas-tendencia-chart"
-import { ContratacionesChart } from "@/components/charts/contrataciones-chart"
-import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
+import { ContratacionesChart } from "./components/charts/contrataciones-chart";
+import { EstudiantesPorComunaLineas } from "./components/charts/estudiantes-por-comuna-lineas";
 import { EstadoPracticasChart } from "@/components/charts/estado-practicas-chart"
 import { TimelinePracticasChart } from "@/components/charts/timeline-practicas-chart"
 import { DuracionPracticasChart } from "@/components/charts/duracion-practicas-chart"
@@ -155,10 +155,13 @@ function AppContent() {
             description="Gestión y análisis de información de estudiantes y prácticas"
           />
           
-          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid lg:grid-cols-2 gap-6 mb-8">
             <ContratacionesChart />
-            <EstudiantesPorComunaChart />
             <EstadoPracticasChart />
+          </div>
+
+          <div className="mb-8">
+            <EstudiantesPorComunaLineas />
           </div>
 
           <Card>

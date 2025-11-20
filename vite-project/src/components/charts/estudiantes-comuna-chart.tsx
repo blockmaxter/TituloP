@@ -17,33 +17,85 @@ import {
 } from "@/components/ui/chart"
 import { useFirebaseData } from "@/hooks/useFirebaseData"
 
-const chartConfig = {
-  cantidad: {
-    label: "Estudiantes",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig
+// Colores para las diferentes carreras
+const carreraColors = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+  "hsl(220, 70%, 50%)",
+  "hsl(280, 70%, 50%)",
+  "hsl(340, 70%, 50%)",
+  "hsl(20, 70%, 50%)",
+  "hsl(60, 70%, 50%)",
+]
+
+const generateChartConfig = (carreras: string[]): ChartConfig => {
+  const config: ChartConfig = {}
+  carreras.forEach((carrera, index) => {
+    const key = carrera.replace(/\s+/g, '_').toLowerCase()
+    config[key] = {
+      label: carrera,
+      color: carreraColors[index % carreraColors.length],
+    }
+  })
+  return config
+}
 
 export function EstudiantesPorComunaChart() {
   const { data, loading, error } = useFirebaseData()
 
-  // Procesar datos para obtener estudiantes por comuna
-  const estudiantesPorComuna = React.useMemo(() => {
-    if (!data || data.length === 0) return []
+  // Procesar datos para obtener estudiantes por comuna apilados por carrera
+  const { estudiantesPorComuna, carreras, chartConfig } = React.useMemo(() => {
+    if (!data || data.length === 0) return { estudiantesPorComuna: [], carreras: [], chartConfig: {} }
     
-    const comunasCount = data.reduce((acc, student) => {
+    // Agrupar por comuna y carrera
+    const comunasData = data.reduce((acc, student) => {
       const comuna = student.comuna || 'Sin comuna'
-      acc[comuna] = (acc[comuna] || 0) + 1
+      const carrera = student.carrera || 'Sin especificar'
+      
+      if (!acc[comuna]) {
+        acc[comuna] = {}
+      }
+      
+      acc[comuna][carrera] = (acc[comuna][carrera] || 0) + 1
+      
       return acc
-    }, {} as Record<string, number>)
+    }, {} as Record<string, Record<string, number>>)
     
-    return Object.entries(comunasCount)
-      .map(([comuna, cantidad]) => ({
-        comuna,
-        cantidad
-      }))
-      .sort((a, b) => b.cantidad - a.cantidad)
+    // Obtener todas las carreras únicas
+    const todasLasCarreras = Array.from(new Set(
+      data.map(student => student.carrera || 'Sin especificar')
+    )).sort()
+    
+    // Generar configuración del chart
+    const config = generateChartConfig(todasLasCarreras)
+    
+    // Convertir a formato para el gráfico
+    const estudiantesData = Object.entries(comunasData)
+      .map(([comuna, carreras]) => {
+        const row: any = { comuna }
+        let total = 0
+        
+        todasLasCarreras.forEach(carrera => {
+          const key = carrera.replace(/\s+/g, '_').toLowerCase()
+          const cantidad = carreras[carrera] || 0
+          row[key] = cantidad
+          total += cantidad
+        })
+        
+        row.total = total
+        return row
+      })
+      .sort((a, b) => b.total - a.total)
       .slice(0, 10) // Mostrar solo las top 10 comunas
+    
+    return {
+      estudiantesPorComuna: estudiantesData,
+      carreras: todasLasCarreras,
+      chartConfig: config
+    }
   }, [data])
 
   if (loading) {
@@ -82,7 +134,7 @@ export function EstudiantesPorComunaChart() {
       <CardHeader>
         <CardTitle>Estudiantes por Comuna de Práctica</CardTitle>
         <CardDescription>
-          Distribución geográfica de las empresas donde realizan práctica ({data.length} total)
+          Distribución de estudiantes por comuna y carrera ({data?.length || 0} total)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -105,14 +157,39 @@ export function EstudiantesPorComunaChart() {
                 cursor={false}
                 content={<ChartTooltipContent />}
               />
-              <Bar 
-                dataKey="cantidad" 
-                fill="var(--color-cantidad)"
-                radius={[0, 4, 4, 0]}
-              />
+              {carreras.map((carrera, index) => {
+                const key = carrera.replace(/\s+/g, '_').toLowerCase()
+                return (
+                  <Bar 
+                    key={carrera}
+                    dataKey={key} 
+                    stackId="comuna"
+                    fill={carreraColors[index % carreraColors.length]}
+                    name={carrera}
+                  />
+                )
+              })}
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>
+        
+        {/* Leyenda de carreras */}
+        <div className="mt-4 space-y-2">
+          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Carreras por color:
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+            {carreras.map((carrera, index) => (
+              <div key={carrera} className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-sm" 
+                  style={{ backgroundColor: carreraColors[index % carreraColors.length] }}
+                />
+                <span className="text-gray-600 dark:text-gray-300">{carrera}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
   )

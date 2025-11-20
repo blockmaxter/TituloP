@@ -4,9 +4,9 @@ import { GeographicDistributionChart } from "@/components/charts/geographic-dist
 import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader, GridLayout } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
+import { EstudiantesPorComunaLineas } from "@/components/charts/estudiantes-por-comuna-lineas"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
 import { AreaEstudiantesChart } from "@/components/charts/area-estudiantes-chart"
-import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
 import { useState, useEffect } from "react"
 import { useFirebaseData } from "@/hooks/useFirebaseData"
 import {
@@ -165,7 +165,7 @@ function AppContent() {
             gap="lg" 
             className="mb-8"
           >
-            <EstudiantesPorComunaChart />
+            <EstudiantesPorComunaLineas />
           </GridLayout>
 
           <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">

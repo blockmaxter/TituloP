@@ -3,11 +3,11 @@ import { DataTableBiblioteca } from "@/components/data-table-biblioteca"
 import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
+import { EstudiantesPorComunaLineas } from "@/components/charts/estudiantes-por-comuna-lineas"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
 import { PracticasTendenciaChart } from "@/components/charts/practicas-tendencia-chart"
 import { NotasPracticaChart } from "@/components/charts/notas-practica-chart"
 import { ContratacionesChart } from "@/components/charts/contrataciones-chart"
-import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
 import { EstadoPracticasChart } from "@/components/charts/estado-practicas-chart"
 import { TimelinePracticasChart } from "@/components/charts/timeline-practicas-chart"
 import { DuracionPracticasChart } from "@/components/charts/duracion-practicas-chart"
@@ -255,6 +255,10 @@ export default function App() {
           description="Gestión de datos de estudiantes en práctica profesional"
         />
         
+        <div className="mb-8">
+          <EstudiantesPorComunaLineas />
+        </div>
+        
         <DataTableBiblioteca />
       </ResponsiveContainer>
     </section>
@@ -486,8 +490,7 @@ export default function App() {
           />
         </MetricGrid>
 
-        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6">
-          <EstudiantesPorComunaChart />
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-1 mb-6">
           <EvaluacionesChart />
         </div>
 

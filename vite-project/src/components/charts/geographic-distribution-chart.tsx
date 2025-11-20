@@ -137,6 +137,13 @@ export function GeographicDistributionChart() {
     setShowSearchResults(false);
     setSelectedStudent(null);
     setSelectedComuna(null);
+    // Enfocar de nuevo el input de búsqueda
+    setTimeout(() => {
+      const searchInput = document.querySelector('input[placeholder*="Busca por"]') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+      }
+    }, 100);
   };
 
   if (loading) {
@@ -639,16 +646,52 @@ export function GeographicDistributionChart() {
               
               {/* Overlay con marcadores virtuales */}
               <div className="absolute inset-0 pointer-events-none">
+                {/* Marcador especial para estudiante seleccionado */}
+                {selectedStudent && comunaData.find(c => c.name === selectedStudent.comuna)?.coordinates && (() => {
+                  const comuna = comunaData.find(c => c.name === selectedStudent.comuna)!;
+                  const latPercent = ((comuna.coordinates!.lat + 56.5386) / (-17.5098 + 56.5386)) * 100;
+                  const lngPercent = ((comuna.coordinates!.lng + 75.6441) / (-66.0986 + 75.6441)) * 100;
+                  
+                  return (
+                    <div className="absolute" style={{
+                      left: `${Math.min(Math.max(lngPercent, 5), 95)}%`,
+                      top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`,
+                      transform: 'translate(-50%, -50%)',
+                      zIndex: 30
+                    }}>
+                      {/* Pulso animado de fondo */}
+                      <div className="absolute w-16 h-16 bg-blue-400 rounded-full opacity-30 animate-ping"></div>
+                      <div className="absolute w-12 h-12 bg-blue-500 rounded-full opacity-50 animate-pulse"></div>
+                      {/* Marcador principal */}
+                      <div className="relative w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-white text-sm font-bold pointer-events-auto cursor-pointer hover:scale-110 transition-all duration-300">
+                        👤
+                      </div>
+                      {/* Etiqueta del estudiante */}
+                      <div className="absolute top-10 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap shadow-lg border border-blue-500">
+                        <div className="flex items-center gap-1">
+                          🎓 {selectedStudent.nombreEstudiante.split(' ').slice(0, 2).join(' ')}
+                        </div>
+                        <div className="text-center text-blue-100 text-[10px] mt-0.5">
+                          {selectedStudent.comuna}
+                        </div>
+                        {/* Flecha apuntando al marcador */}
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-b-2 border-transparent border-b-blue-600"></div>
+                      </div>
+                    </div>
+                  );
+                })()}
+                
+                {/* Marcadores regulares de comunas */}
                 {comunaData.slice(0, 8).filter(comuna => comuna.coordinates).map((comuna, index) => {
                   // Calcular posición aproximada en el mapa (simplificado)
                   const latPercent = ((comuna.coordinates!.lat + 56.5386) / (-17.5098 + 56.5386)) * 100;
                   const lngPercent = ((comuna.coordinates!.lng + 75.6441) / (-66.0986 + 75.6441)) * 100;
                   
-                  // Destacar la comuna del estudiante seleccionado
+                  // No mostrar marcador regular si es la comuna del estudiante seleccionado
                   const isSelectedStudentComuna = selectedStudent && comuna.name === selectedStudent.comuna;
-                  const color = isSelectedStudentComuna 
-                    ? 'bg-blue-600 ring-4 ring-blue-300 ring-opacity-60 scale-125' 
-                    : index < 3 ? 'bg-red-500' : index < 6 ? 'bg-yellow-500' : 'bg-green-500';
+                  if (isSelectedStudentComuna) return null;
+                  
+                  const color = index < 3 ? 'bg-red-500' : index < 6 ? 'bg-yellow-500' : 'bg-green-500';
                   
                   return (
                     <div
@@ -656,16 +699,12 @@ export function GeographicDistributionChart() {
                       className={`absolute w-6 h-6 ${color} rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white text-xs font-bold transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-pointer hover:scale-110 transition-all duration-300 z-10`}
                       style={{
                         left: `${Math.min(Math.max(lngPercent, 5), 95)}%`,
-                        top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`,
-                        zIndex: isSelectedStudentComuna ? 20 : 10
+                        top: `${Math.min(Math.max(100 - latPercent, 5), 95)}%`
                       }}
-                      title={isSelectedStudentComuna 
-                        ? `${comuna.name}: ${comuna.studentCount} estudiantes (📍 ${selectedStudent.nombreEstudiante})` 
-                        : `${comuna.name}: ${comuna.studentCount} estudiantes`
-                      }
+                      title={`${comuna.name}: ${comuna.studentCount} estudiantes`}
                       onClick={() => setSelectedComuna(selectedComuna?.name === comuna.name ? null : comuna)}
                     >
-                      {isSelectedStudentComuna ? '👤' : comuna.studentCount}
+                      {comuna.studentCount}
                     </div>
                   );
                 })}
@@ -693,6 +732,19 @@ export function GeographicDistributionChart() {
                 <span className="text-gray-600 dark:text-gray-300">Otras comunas</span>
               </div>
             </div>
+            {selectedStudent && (
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <div className="w-4 h-4 bg-blue-600 rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">
+                    👤 Estudiante seleccionado: {selectedStudent.nombreEstudiante}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
