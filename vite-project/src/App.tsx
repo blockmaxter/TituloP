@@ -5,7 +5,7 @@ import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader, GridLayout } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
-import { ContratacionesChart } from "@/components/charts/contrataciones-chart"
+import { AreaEstudiantesChart } from "@/components/charts/area-estudiantes-chart"
 import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
 import { useState, useEffect } from "react"
 import { useFirebaseData } from "@/hooks/useFirebaseData"
@@ -137,6 +137,14 @@ function AppContent() {
             <EstudiantesPorCarreraChart />
             <EvaluacionesChart />
           </GridLayout>
+
+          <GridLayout 
+            cols={{ default: 1, lg: 2 }} 
+            gap="lg" 
+            className="mb-8"
+          >
+            <AreaEstudiantesChart />
+          </GridLayout>
         </ResponsiveContainer>
       </section>
     </ProtectedRoute>
@@ -153,11 +161,10 @@ function AppContent() {
           />
           
           <GridLayout 
-            cols={{ default: 1, lg: 2 }} 
+            cols={{ default: 1 }} 
             gap="lg" 
             className="mb-8"
           >
-            <ContratacionesChart />
             <EstudiantesPorComunaChart />
           </GridLayout>
 
