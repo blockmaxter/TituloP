@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { DataTableBiblioteca } from "@/components/data-table-biblioteca"
+import { GeographicDistributionChart } from "@/components/charts/geographic-distribution-chart"
 import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader, GridLayout } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
@@ -181,68 +182,13 @@ function AppContent() {
       <section id="analitica" className="min-h-screen">
         <ResponsiveContainer padding="lg" background="glass">
           <SectionHeader 
-            title="Analítica Avanzada" 
-            description="Insights profundos y tendencias de las prácticas profesionales"
+            title="Distribución Geográfica" 
+            description="Mapa interactivo de estudiantes y empresas por comuna"
             size="lg"
           />
           
           <div className="space-y-8">
-            <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
-              <CardHeader>
-                <CardTitle>Análisis Interactivo de Tendencias</CardTitle>
-                <CardDescription>
-                  Explora las tendencias y patrones en los datos de prácticas profesionales
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center p-8 text-gray-500">
-                  <p>Gráficos analíticos disponibles cuando se importen datos CSV</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <ProtectedRoute requiredPermissions={[Permission.VIEW_DETAILED_ANALYTICS]} fallback={
-              <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
-                <CardContent className="flex items-center justify-center py-12">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-2">Analítica Detallada</h3>
-                    <p className="text-muted-foreground">
-                      Necesitas permisos adicionales para ver los análisis detallados.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            }>
-              <GridLayout cols={{ default: 1, lg: 2 }} gap="lg">
-                <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle>Predicciones de Rendimiento</CardTitle>
-                    <CardDescription>
-                      Modelos predictivos basados en datos históricos
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 flex items-center justify-center text-muted-foreground">
-                      Gráfico de predicciones (próximamente)
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
-                  <CardHeader>
-                    <CardTitle>Análisis de Correlaciones</CardTitle>
-                    <CardDescription>
-                      Relaciones entre variables académicas y laborales
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 flex items-center justify-center text-muted-foreground">
-                      Matriz de correlación (próximamente)
-                    </div>
-                  </CardContent>
-                </Card>
-              </GridLayout>
-            </ProtectedRoute>
+            <GeographicDistributionChart />
           </div>
         </ResponsiveContainer>
       </section>

@@ -1,17 +1,13 @@
 import * as React from "react"
 import {
   BarChartIcon,
-  CameraIcon,
   DatabaseIcon,
-  FileCodeIcon,
-  FileTextIcon,
-  FolderIcon,
   LayoutDashboardIcon,
-  ListIcon,
+  MapIcon,
   SettingsIcon,
+  UsersIcon,
 } from "lucide-react"
 
-import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -34,92 +30,32 @@ const data = {
   },
   navMain: [
     {
-      title: "Tablero",
-      url: "#",
+      title: "Dashboard",
+      url: "#dashboard",
       icon: LayoutDashboardIcon,
+      description: "Vista general del estado de las prácticas"
     },
     {
-      title: "Ciclo de vida",
-      url: "#",
-      icon: ListIcon,
+      title: "Biblioteca de Datos",
+      url: "#biblioteca-de-datos",
+      icon: DatabaseIcon,
+      description: "Gestión y análisis de información"
     },
     {
-      title: "Analítica",
-      url: "#",
-      icon: BarChartIcon,
+      title: "Distribución Geográfica",
+      url: "#analitica",
+      icon: MapIcon,
+      description: "Mapa interactivo de estudiantes y empresas"
     },
     {
       title: "Administración",
-      url: "#",
+      url: "#admin",
       icon: SettingsIcon,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Captura",
-      icon: CameraIcon,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Propuestas activas",
-          url: "#",
-        },
-        {
-          title: "Archivadas",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Propuesta",
-      icon: FileTextIcon,
-      url: "#",
-      items: [
-        {
-          title: "Propuestas activas",
-          url: "#",
-        },
-        {
-          title: "Archivadas",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: FileCodeIcon,
-      url: "#",
-      items: [
-        {
-          title: "Propuestas activas",
-          url: "#",
-        },
-        {
-          title: "Archivadas",
-          url: "#",
-        },
-      ],
+      description: "Gestión de usuarios y permisos"
     },
   ],
   navSecondary: [
-    {
-      title: "Configuración",
-      url: "#",
-      icon: SettingsIcon,
-    },
-  ],
-  documents: [
-    {
-      name: "Biblioteca de datos",
-      url: "#",
-      icon: DatabaseIcon,
-    },
-    {
-      name: "Formulario",
-      url: "#",
-      icon: FolderIcon,
-    },
+    // Configuración eliminada según solicitud del usuario
   ],
 }
 
@@ -160,7 +96,6 @@ export function AppSidebar({ onSectionChange, activeSection, isAuthenticated, on
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} onSectionChange={onSectionChange} activeSection={activeSection} />
-        <NavDocuments items={data.documents} onSectionChange={onSectionChange} activeSection={activeSection} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
         <ThemeToggle />
       </SidebarContent>

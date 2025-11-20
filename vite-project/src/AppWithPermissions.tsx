@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { DataTableBiblioteca } from "@/components/data-table-biblioteca"
+import { GeographicDistributionChart } from "@/components/charts/geographic-distribution-chart"
 import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
@@ -16,10 +17,8 @@ import { useFirebaseData } from "@/hooks/useFirebaseData"
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -28,11 +27,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ScrollProgress } from "@/components/scroll-progress"
 import { FloatingNav } from "@/components/floating-nav"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
-import { RoleBadge, PermissionIndicator } from "@/components/UserPermissionIndicators"
+import { RoleBadge } from "@/components/UserPermissionIndicators"
 import { UserManagement } from "@/components/admin/UserManagement"
 import { usePermissions } from "@/contexts/PermissionsContext"
 import { Permission } from "@/types/permissions"
@@ -206,65 +204,12 @@ function AppContent() {
       <section id="analitica" className="min-h-screen py-8 bg-muted/30">
         <ResponsiveContainer>
           <SectionHeader 
-            title="Analítica Avanzada" 
-            description="Insights profundos y tendencias de las prácticas profesionales"
+            title="Distribución Geográfica" 
+            description="Mapa interactivo de estudiantes y empresas por comuna"
           />
           
           <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Análisis Interactivo de Tendencias</CardTitle>
-                <CardDescription>
-                  Explora las tendencias y patrones en los datos de prácticas profesionales
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ChartAreaInteractive />
-              </CardContent>
-            </Card>
-
-            <ProtectedRoute requiredPermissions={[Permission.VIEW_DETAILED_ANALYTICS]} fallback={
-              <Card>
-                <CardContent className="flex items-center justify-center py-8">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-2">Analítica Detallada</h3>
-                    <p className="text-muted-foreground">
-                      Necesitas permisos adicionales para ver los análisis detallados.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            }>
-              <div className="grid lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Predicciones de Rendimiento</CardTitle>
-                    <CardDescription>
-                      Modelos predictivos basados en datos históricos
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 flex items-center justify-center text-muted-foreground">
-                      Gráfico de predicciones (próximamente)
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Análisis de Correlaciones</CardTitle>
-                    <CardDescription>
-                      Relaciones entre variables académicas y laborales
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 flex items-center justify-center text-muted-foreground">
-                      Matriz de correlación (próximamente)
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </ProtectedRoute>
+            <GeographicDistributionChart />
           </div>
         </ResponsiveContainer>
       </section>
