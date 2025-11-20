@@ -4,15 +4,10 @@ import { MetricCard, MetricGrid } from "@/components/ui/metric-card"
 import { ResponsiveContainer, SectionHeader, GridLayout } from "@/components/ui/responsive-layout"
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
-import { PracticasTendenciaChart } from "@/components/charts/practicas-tendencia-chart"
-import { NotasPracticaChart } from "@/components/charts/notas-practica-chart"
 import { ContratacionesChart } from "@/components/charts/contrataciones-chart"
 import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
-import { EstadoPracticasChart } from "@/components/charts/estado-practicas-chart"
-import { TimelinePracticasChart } from "@/components/charts/timeline-practicas-chart"
-import { DuracionPracticasChart } from "@/components/charts/duracion-practicas-chart"
-import { SeguimientoPracticasChart } from "@/components/charts/seguimiento-practicas-chart"
 import { useState, useEffect } from "react"
+import { useFirebaseData } from "@/hooks/useFirebaseData"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,7 +30,6 @@ import { UserManagement } from "@/components/admin/UserManagement"
 import { usePermissions } from "@/contexts/PermissionsContext"
 import { Permission } from "@/types/permissions"
 import AuthWrapper from "@/components/AuthWrapper"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import HomePage from "./pages/index"
 
@@ -43,6 +37,14 @@ function AppContent() {
   const [activeSection, setActiveSection] = useState<string>("dashboard");
   const [showLogin, setShowLogin] = useState(false);
   const { user, loading } = usePermissions();
+  const { data: studentData, loading: dataLoading } = useFirebaseData();
+
+  // Calcular métricas dinámicamente
+  const metrics = {
+    estudiantesActivos: studentData.length,
+    empresasColaboradoras: new Set(studentData.map(s => s.nombreEmpresa).filter(e => e && e.trim())).size,
+    practicasFinalizadas: studentData.filter(s => s.evaluacionEnviada === 'Si' || s.evaluacionEnviada === 'Sí').length
+  };
 
   // Intersection Observer para detectar sección activa
   useEffect(() => {
@@ -108,27 +110,21 @@ function AppContent() {
           <MetricGrid className="mb-8">
             <MetricCard
               title="Estudiantes Activos"
-              value="1,247"
+              value={dataLoading ? "..." : metrics.estudiantesActivos.toString()}
               change={+12.5}
-              description="Estudiantes con práctica en curso"
+              description="Estudiantes con práctica registrada"
             />
             <MetricCard
               title="Empresas Colaboradoras"
-              value="89"
+              value={dataLoading ? "..." : metrics.empresasColaboradoras.toString()}
               change={+8.2}
               description="Empresas con convenio activo"
             />
             <MetricCard
               title="Prácticas Finalizadas"
-              value="342"
+              value={dataLoading ? "..." : metrics.practicasFinalizadas.toString()}
               change={+15.3}
-              description="Prácticas completadas este semestre"
-            />
-            <MetricCard
-              title="Nota Promedio"
-              value="6.2"
-              change={+2.1}
-              description="Calificación promedio de prácticas"
+              description="Prácticas con evaluación enviada"
             />
           </MetricGrid>
 
@@ -140,13 +136,6 @@ function AppContent() {
             <EstudiantesPorCarreraChart />
             <EvaluacionesChart />
           </GridLayout>
-
-          <ProtectedRoute requiredPermissions={[Permission.VIEW_DETAILED_ANALYTICS]} fallback={null}>
-            <GridLayout cols={{ default: 1, lg: 2 }} gap="lg">
-              <PracticasTendenciaChart />
-              <NotasPracticaChart />
-            </GridLayout>
-          </ProtectedRoute>
         </ResponsiveContainer>
       </section>
     </ProtectedRoute>
@@ -163,13 +152,12 @@ function AppContent() {
           />
           
           <GridLayout 
-            cols={{ default: 1, md: 2, lg: 3 }} 
+            cols={{ default: 1, lg: 2 }} 
             gap="lg" 
             className="mb-8"
           >
             <ContratacionesChart />
             <EstudiantesPorComunaChart />
-            <EstadoPracticasChart />
           </GridLayout>
 
           <Card className="shadow-lg border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
@@ -183,33 +171,6 @@ function AppContent() {
               <DataTableBiblioteca />
             </CardContent>
           </Card>
-        </ResponsiveContainer>
-      </section>
-    </ProtectedRoute>
-  );
-
-  const renderCicloVidaSection = () => (
-    <ProtectedRoute requiredPermissions={[Permission.VIEW_LIFECYCLE]} showError={false}>
-      <section id="ciclo-vida" className="min-h-screen">
-        <ResponsiveContainer padding="lg" background="gradient">
-          <SectionHeader 
-            title="Ciclo de Vida de Prácticas" 
-            description="Seguimiento temporal y evolutivo de las prácticas profesionales"
-            size="lg"
-          />
-          
-          <GridLayout 
-            cols={{ default: 1, lg: 2 }} 
-            gap="lg" 
-            className="mb-8"
-          >
-            <TimelinePracticasChart />
-            <DuracionPracticasChart />
-          </GridLayout>
-
-          <GridLayout cols={{ default: 1 }} gap="lg">
-            <SeguimientoPracticasChart />
-          </GridLayout>
         </ResponsiveContainer>
       </section>
     </ProtectedRoute>
@@ -234,7 +195,9 @@ function AppContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ChartAreaInteractive />
+                <div className="text-center p-8 text-gray-500">
+                  <p>Gráficos analíticos disponibles cuando se importen datos CSV</p>
+                </div>
               </CardContent>
             </Card>
 
@@ -377,7 +340,6 @@ function AppContent() {
           <div className="flex-1">
             {renderDashboardSection()}
             {renderBibliotecaSection()}
-            {renderCicloVidaSection()}
             {renderAnaliticaSection()}
             {renderAdminSection()}
           </div>

@@ -25,6 +25,7 @@ export function NavMain({ items, onSectionChange, activeSection }: {
   // Mapeo de secciones a permisos requeridos
   const getSectionPermissions = (title: string): Permission[] => {
     switch (title.toLowerCase()) {
+      case 'tablero':
       case 'dashboard':
         return [Permission.VIEW_DASHBOARD];
       case 'ciclo de vida':
@@ -53,7 +54,8 @@ export function NavMain({ items, onSectionChange, activeSection }: {
               return null;
             }
 
-            const sectionId = item.title === "Ciclo de vida" ? "ciclo-vida" : 
+            const sectionId = item.title === "Tablero" ? "dashboard" :
+                           item.title === "Ciclo de vida" ? "ciclo-vida" : 
                            item.title === "Analítica" ? "analitica" :
                            item.title === "Administración" ? "admin" :
                            item.title.toLowerCase();

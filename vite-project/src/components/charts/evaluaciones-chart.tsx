@@ -9,18 +9,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+
+// Función helper para normalizar el estado de evaluación
+const normalizeEvaluationStatus = (status: string | undefined): boolean => {
+  if (!status) return false;
+  const normalized = status.toString().toLowerCase().trim();
+  return normalized === 'si' || normalized === 'sí' || normalized === 'yes' || normalized === 'true' || normalized === '1';
+};
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
-// Datos de evaluaciones enviadas vs pendientes
-const evaluacionesData = [
-  { name: "Evaluaciones Enviadas", value: 78, color: "#10b981" },
-  { name: "Evaluaciones Pendientes", value: 42, color: "#f59e0b" },
-]
+import { useFirebaseData } from "@/hooks/useFirebaseData"
 
 const chartConfig = {
   enviadas: {
@@ -34,12 +36,61 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function EvaluacionesChart() {
+  const { data, loading, error } = useFirebaseData()
+
+  // Procesar datos para obtener evaluaciones enviadas vs pendientes
+  const evaluacionesData = React.useMemo(() => {
+    if (!data || data.length === 0) return []
+    
+    const enviadas = data.filter(student => 
+      normalizeEvaluationStatus(student.evaluacionEnviada)
+    ).length
+    
+    const pendientes = data.length - enviadas
+    
+    return [
+      { name: "Evaluaciones Enviadas", value: enviadas, color: "#10b981" },
+      { name: "Evaluaciones Pendientes", value: pendientes, color: "#f59e0b" },
+    ]
+  }, [data])
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Estado de Evaluaciones</CardTitle>
+          <CardDescription>
+            Cargando datos...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Estado de Evaluaciones</CardTitle>
+          <CardDescription className="text-red-600">
+            Error al cargar datos: {error}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Estado de Evaluaciones</CardTitle>
         <CardDescription>
-          Evaluaciones de práctica profesional enviadas vs pendientes
+          Evaluaciones de práctica profesional enviadas vs pendientes ({data.length} total)
         </CardDescription>
       </CardHeader>
       <CardContent>

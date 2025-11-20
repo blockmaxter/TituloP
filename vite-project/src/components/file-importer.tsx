@@ -13,26 +13,18 @@ import { db } from '@/lib/firebase';
 interface StudentData {
   nombreEstudiante: string;
   rut: string;
-  carrera: string;
   facultad: string;
+  carrera: string;
   nombreEmpresa: string;
-  jefeDirecto: string;
-  email: string;
-  emailEmpresa: string;
-  telefonoEmpresa: string;
-  cargo: string;
   comuna: string;
-  region: string;
-  direccionEmpresa: string;
+  supervisorPractica: string;
+  emailAlumno: string;
+  cargo: string;
+  areaEstudiante: string;
   semestre: string;
-  anio: string;
+  anioPractica: string;
   anioIngreso: string;
-  fechaInicio: string;
-  fechaTermino: string;
-  horasPractica: string;
   evaluacionEnviada: string;
-  supervisor: string;
-  notaPractica: string;
 }
 
 interface FileImporterProps {
@@ -43,9 +35,118 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
+  const [duplicatesInfo, setDuplicatesInfo] = useState<string>('');
   const [previewData, setPreviewData] = useState<StudentData[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Función para sanitizar texto
+  const sanitizeText = (text: string | null | undefined): string => {
+    if (!text) return '';
+    
+    return String(text)
+      // Convertir a string y hacer trim
+      .trim()
+      // Normalizar espacios múltiples a un solo espacio
+      .replace(/\s+/g, ' ')
+      // Remover caracteres de control y caracteres especiales peligrosos
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      // Remover caracteres que pueden causar problemas en bases de datos
+      .replace(/[<>'"&\\]/g, '')
+      // Remover caracteres de inyección SQL/NoSQL básicos
+      .replace(/[;{}$]/g, '')
+      // Remover caracteres Unicode problemáticos
+      .replace(/[\u2000-\u200F\u2028-\u202F\u205F-\u206F]/g, ' ')
+      // Normalizar saltos de línea
+      .replace(/\r?\n/g, ' ')
+      // Normalizar comillas tipográficas
+      .replace(/[""]/g, '"')
+      .replace(/['']/g, "'")
+      // Limitar longitud máxima por seguridad
+      .substring(0, 500)
+      // Trim final
+      .trim();
+  };
+
+  // Función para sanitizar email específicamente
+  const sanitizeEmail = (email: string | null | undefined): string => {
+    if (!email) return '';
+    
+    const sanitized = sanitizeText(email);
+    // Validación básica de formato de email
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(sanitized) ? sanitized : '';
+  };
+
+  // Función helper para normalizar el estado de evaluación
+  const normalizeEvaluationStatus = (status: string | undefined): boolean => {
+    if (!status) return false;
+    const normalized = status.toString().toLowerCase().trim();
+    return normalized === 'si' || normalized === 'sí' || normalized === 'yes' || normalized === 'true' || normalized === '1';
+  };
+
+  // Función helper para normalizar el valor antes de guardar
+  const normalizeForSave = (status: string | undefined): string => {
+    return normalizeEvaluationStatus(status) ? 'Sí' : 'No';
+  };
+
+  // Función para sanitizar RUT específicamente
+  const sanitizeRUT = (rut: string | null | undefined): string => {
+    if (!rut) return '';
+    
+    const cleaned = String(rut)
+      .trim()
+      // Mantener solo números, puntos, guiones y K/k
+      .replace(/[^0-9.\-Kk]/g, '')
+      // Normalizar formato
+      .toUpperCase()
+      .substring(0, 12); // RUT no debería ser más largo
+    
+    return cleaned;
+  };
+
+  // Función para validar formato de RUT chileno
+  const isValidRUTFormat = (rut: string): boolean => {
+    if (!rut) return false;
+    
+    // Remover puntos y guiones para validación
+    const cleanRUT = rut.replace(/[.\-]/g, '');
+    
+    // Debe tener entre 8-9 caracteres (7-8 números + dígito verificador)
+    if (cleanRUT.length < 8 || cleanRUT.length > 9) return false;
+    
+    // Último carácter debe ser número o K
+    const lastChar = cleanRUT.slice(-1);
+    if (!/[0-9K]/.test(lastChar)) return false;
+    
+    // Los primeros caracteres deben ser números
+    const numbers = cleanRUT.slice(0, -1);
+    if (!/^\d+$/.test(numbers)) return false;
+    
+    return true;
+  };
+
+  // Función para sanitizar un objeto StudentData completo
+  const sanitizeStudentData = (student: any): StudentData => {
+    const sanitizedRUT = sanitizeRUT(student.rut);
+    
+    return {
+      nombreEstudiante: sanitizeText(student.nombreEstudiante),
+      rut: isValidRUTFormat(sanitizedRUT) ? sanitizedRUT : '', // Solo guardar si el formato es válido
+      facultad: sanitizeText(student.facultad),
+      carrera: sanitizeText(student.carrera),
+      nombreEmpresa: sanitizeText(student.nombreEmpresa),
+      comuna: sanitizeText(student.comuna),
+      supervisorPractica: sanitizeText(student.supervisorPractica),
+      emailAlumno: sanitizeEmail(student.emailAlumno),
+      cargo: sanitizeText(student.cargo),
+      areaEstudiante: sanitizeText(student.areaEstudiante),
+      semestre: sanitizeText(student.semestre),
+      anioPractica: sanitizeText(student.anioPractica),
+      anioIngreso: sanitizeText(student.anioIngreso),
+      evaluacionEnviada: normalizeForSave(student.evaluacionEnviada)
+    };
+  };
 
   const processExcelFile = (file: File): Promise<StudentData[]> => {
     return new Promise((resolve, reject) => {
@@ -72,69 +173,23 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
             .map((row) => {
               const student: any = {};
               
-              // Mapear columnas basándose en posición o nombre de encabezado
+              // Mapear columnas basándose exactamente en el CSV proporcionado
               const headerMapping: { [key: string]: keyof StudentData } = {
                 'NOMBRE ESTUDIANTE': 'nombreEstudiante',
-                'Nombre Estudiante': 'nombreEstudiante',
-                'Nombre': 'nombreEstudiante',
                 'RUT': 'rut',
-                'Rut': 'rut',
-                'CARRERA': 'carrera',
-                'Carrera': 'carrera',
                 'FACULTAD': 'facultad',
-                'Facultad': 'facultad',
+                'CARRERA': 'carrera',
                 'NOMBRE EMPRESA': 'nombreEmpresa',
-                'Nombre Empresa': 'nombreEmpresa',
-                'Empresa': 'nombreEmpresa',
-                'JEFE DIRECTO': 'jefeDirecto',
-                'Jefe Directo': 'jefeDirecto',
-                'Jefe': 'jefeDirecto',
-                'EMAIL': 'email',
-                'Email': 'email',
-                'Correo': 'email',
-                'EMAIL ESTUDIANTE': 'email',
-                'Email Estudiante': 'email',
-                'CARGO': 'cargo',
-                'Cargo': 'cargo',
                 'COMUNA': 'comuna',
-                'Comuna': 'comuna',
+                'SUPERVISOR DE PRACTICA': 'supervisorPractica',
+                'EMAIL alumno': 'emailAlumno',
+                'CARGO': 'cargo',
+                'AREA DE ESTUDIANTE': 'areaEstudiante',
                 'SEMESTRE': 'semestre',
-                'Semestre': 'semestre',
-                'AÑO PRACTICA': 'anio',
-                'Año Practica': 'anio',
+                'AÑO PRACTICA': 'anioPractica',
                 'AÑO INGRESO': 'anioIngreso',
-                'Año Ingreso': 'anioIngreso',
-                'EVALUACION ENVIADA': 'evaluacionEnviada',
-                'Evaluacion Enviada': 'evaluacionEnviada',
-                'Evaluación': 'evaluacionEnviada',
-                // Mapeos adicionales para compatibilidad con archivos antiguos
-                'EMAIL EMPRESA': 'emailEmpresa',
-                'Email Empresa': 'emailEmpresa',
-                'Correo Empresa': 'emailEmpresa',
-                'TELEFONO EMPRESA': 'telefonoEmpresa',
-                'Telefono Empresa': 'telefonoEmpresa',
-                'Teléfono Empresa': 'telefonoEmpresa',
-                'REGION': 'region',
-                'Región': 'region',
-                'Region': 'region',
-                'DIRECCION EMPRESA': 'direccionEmpresa',
-                'Direccion Empresa': 'direccionEmpresa',
-                'Dirección Empresa': 'direccionEmpresa',
-                'AÑO': 'anio',
-                'Año': 'anio',
-                'FECHA INICIO': 'fechaInicio',
-                'Fecha Inicio': 'fechaInicio',
-                'FECHA TERMINO': 'fechaTermino',
-                'Fecha Termino': 'fechaTermino',
-                'Fecha Término': 'fechaTermino',
-                'HORAS PRACTICA': 'horasPractica',
-                'Horas Practica': 'horasPractica',
-                'Horas Práctica': 'horasPractica',
-                'SUPERVISOR': 'supervisor',
-                'Supervisor': 'supervisor',
-                'NOTA PRACTICA': 'notaPractica',
-                'Nota Practica': 'notaPractica',
-                'Nota Práctica': 'notaPractica'
+                'EVALUACION\nENVIADA': 'evaluacionEnviada',
+                'EVALUACION ENVIADA': 'evaluacionEnviada'
               };
 
               headers.forEach((header: string, i: number) => {
@@ -144,31 +199,26 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                 }
               });
 
-              // Valores por defecto si no se encuentran en el archivo
-              return {
-                nombreEstudiante: student.nombreEstudiante || student.nombre || '',
+              // Crear objeto con valores por defecto
+              const rawStudent = {
+                nombreEstudiante: student.nombreEstudiante || '',
                 rut: student.rut || '',
-                carrera: student.carrera || '',
                 facultad: student.facultad || '',
-                nombreEmpresa: student.nombreEmpresa || student.empresa || '',
-                jefeDirecto: student.jefeDirecto || student.jefe || '',
-                email: student.email || student.correo || '',
-                emailEmpresa: student.emailEmpresa || '',
-                telefonoEmpresa: student.telefonoEmpresa || '',
-                cargo: student.cargo || '',
+                carrera: student.carrera || '',
+                nombreEmpresa: student.nombreEmpresa || '',
                 comuna: student.comuna || '',
-                region: student.region || '',
-                direccionEmpresa: student.direccionEmpresa || '',
+                supervisorPractica: student.supervisorPractica || '',
+                emailAlumno: student.emailAlumno || '',
+                cargo: student.cargo || '',
+                areaEstudiante: student.areaEstudiante || '',
                 semestre: student.semestre || '',
-                anio: student.anio || student.año || '',
+                anioPractica: student.anioPractica || '',
                 anioIngreso: student.anioIngreso || '',
-                fechaInicio: student.fechaInicio || '',
-                fechaTermino: student.fechaTermino || '',
-                horasPractica: student.horasPractica || '',
-                evaluacionEnviada: student.evaluacionEnviada || student.evaluacion || 'No',
-                supervisor: student.supervisor || '',
-                notaPractica: student.notaPractica || ''
-              } as StudentData;
+                evaluacionEnviada: normalizeForSave(student.evaluacionEnviada)
+              };
+
+              // Aplicar sanitización
+              return sanitizeStudentData(rawStudent);
             });
 
           resolve(processedData);
@@ -186,32 +236,31 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
+        delimiter: ';', // El CSV usa punto y coma como separador
         complete: (results) => {
           try {
-            const processedData: StudentData[] = results.data.map((row: any) => ({
-              nombreEstudiante: row['NOMBRE ESTUDIANTE'] || row['Nombre Estudiante'] || row['Nombre'] || '',
-              rut: row['RUT'] || row['Rut'] || '',
-              carrera: row['CARRERA'] || row['Carrera'] || '',
-              facultad: row['FACULTAD'] || row['Facultad'] || '',
-              nombreEmpresa: row['NOMBRE EMPRESA'] || row['Nombre Empresa'] || row['Empresa'] || '',
-              jefeDirecto: row['JEFE DIRECTO'] || row['Jefe Directo'] || row['Jefe'] || '',
-              email: row['EMAIL'] || row['Email'] || row['Correo'] || row['EMAIL ESTUDIANTE'] || row['Email Estudiante'] || '',
-              emailEmpresa: row['EMAIL EMPRESA'] || row['Email Empresa'] || row['Correo Empresa'] || '',
-              telefonoEmpresa: row['TELEFONO EMPRESA'] || row['Telefono Empresa'] || row['Teléfono Empresa'] || '',
-              cargo: row['CARGO'] || row['Cargo'] || '',
-              comuna: row['COMUNA'] || row['Comuna'] || '',
-              region: row['REGION'] || row['Región'] || row['Region'] || '',
-              direccionEmpresa: row['DIRECCION EMPRESA'] || row['Direccion Empresa'] || row['Dirección Empresa'] || '',
-              semestre: row['SEMESTRE'] || row['Semestre'] || '',
-              anio: row['AÑO PRACTICA'] || row['Año Practica'] || row['AÑO'] || row['Año'] || '',
-              anioIngreso: row['AÑO INGRESO'] || row['Año Ingreso'] || '',
-              fechaInicio: row['FECHA INICIO'] || row['Fecha Inicio'] || '',
-              fechaTermino: row['FECHA TERMINO'] || row['Fecha Termino'] || row['Fecha Término'] || '',
-              horasPractica: row['HORAS PRACTICA'] || row['Horas Practica'] || row['Horas Práctica'] || '',
-              evaluacionEnviada: row['EVALUACION ENVIADA'] || row['Evaluacion Enviada'] || row['Evaluación'] || 'No',
-              supervisor: row['SUPERVISOR'] || row['Supervisor'] || '',
-              notaPractica: row['NOTA PRACTICA'] || row['Nota Practica'] || row['Nota Práctica'] || ''
-            }));
+            const processedData: StudentData[] = results.data.map((row: any) => {
+              // Crear objeto raw con los datos del CSV
+              const rawStudent = {
+                nombreEstudiante: row['NOMBRE ESTUDIANTE'] || '',
+                rut: row['RUT'] || '',
+                facultad: row['FACULTAD'] || '',
+                carrera: row['CARRERA'] || '',
+                nombreEmpresa: row['NOMBRE EMPRESA'] || '',
+                comuna: row['COMUNA'] || '',
+                supervisorPractica: row['SUPERVISOR DE PRACTICA'] || '',
+                emailAlumno: row['EMAIL alumno'] || '',
+                cargo: row['CARGO'] || '',
+                areaEstudiante: row['AREA DE ESTUDIANTE'] || '',
+                semestre: row['SEMESTRE'] || '',
+                anioPractica: row['AÑO PRACTICA'] || '',
+                anioIngreso: row['AÑO INGRESO'] || '',
+                evaluacionEnviada: normalizeForSave(row['EVALUACION\nENVIADA'] || row['EVALUACION ENVIADA'])
+              };
+
+              // Aplicar sanitización
+              return sanitizeStudentData(rawStudent);
+            });
             resolve(processedData);
           } catch (error) {
             reject(new Error('Error al procesar el archivo CSV: ' + (error as Error).message));
@@ -226,13 +275,36 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
 
   const syncToFirebase = async (data: StudentData[]) => {
     try {
+      // Validación y sanitización final antes de subir a Firebase
+      const sanitizedData = data.map((student, index) => {
+        const sanitized = sanitizeStudentData(student);
+        
+        // Log de cambios importantes durante sanitización
+        if (student.rut !== sanitized.rut) {
+          console.log(`RUT sanitizado para ${sanitized.nombreEstudiante}: "${student.rut}" → "${sanitized.rut}"`);
+        }
+        if (student.emailAlumno !== sanitized.emailAlumno) {
+          console.log(`Email sanitizado para ${sanitized.nombreEstudiante}: "${student.emailAlumno}" → "${sanitized.emailAlumno}"`);
+        }
+        
+        // Validaciones adicionales
+        if (!sanitized.nombreEstudiante) {
+          throw new Error(`Fila ${index + 1}: Nombre de estudiante requerido`);
+        }
+        if (!sanitized.rut) {
+          console.warn(`Fila ${index + 1}: RUT inválido o vacío para ${sanitized.nombreEstudiante}`);
+        }
+        
+        return sanitized;
+      });
+
       // Limpiar la colección existente
       const querySnapshot = await getDocs(collection(db, 'estudiantes'));
       const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
       await Promise.all(deletePromises);
 
-      // Agregar nuevos datos
-      const addPromises = data.map(async (student, index) => {
+      // Agregar nuevos datos sanitizados
+      const addPromises = sanitizedData.map(async (student, index) => {
         const docRef = doc(db, 'estudiantes', `estudiante_${index + 1}`);
         return setDoc(docRef, {
           ...student,
@@ -247,6 +319,31 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
       console.error('Error al sincronizar con Firebase:', error);
       throw new Error('Error al sincronizar con Firebase: ' + (error as Error).message);
     }
+  };
+
+  const removeDuplicatesByRUT = (data: StudentData[]): { cleanData: StudentData[], duplicatesFound: number } => {
+    const rutSet = new Set<string>();
+    const cleanData: StudentData[] = [];
+    let duplicatesFound = 0;
+
+    for (const student of data) {
+      // Normalizar el RUT (quitar espacios, puntos, guiones)
+      const normalizedRUT = student.rut
+        .replace(/\s+/g, '')
+        .replace(/\./g, '')
+        .replace(/-/g, '')
+        .toLowerCase();
+
+      if (!rutSet.has(normalizedRUT)) {
+        rutSet.add(normalizedRUT);
+        cleanData.push(student);
+      } else {
+        duplicatesFound++;
+        console.log(`RUT duplicado encontrado y eliminado: ${student.rut} (${student.nombreEstudiante})`);
+      }
+    }
+
+    return { cleanData, duplicatesFound };
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,13 +369,26 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
         throw new Error('No se encontraron datos válidos en el archivo');
       }
 
-      setPreviewData(data);
+      // Eliminar duplicados basándose en RUT
+      const { cleanData, duplicatesFound } = removeDuplicatesByRUT(data);
+
+      setPreviewData(cleanData);
       setShowPreview(true);
-      setStatusMessage(`Se procesaron ${data.length} registros correctamente`);
+      
+      // Mensaje de estado con información de duplicados
+      let message = `Se procesaron ${cleanData.length} registros únicos correctamente`;
+      if (duplicatesFound > 0) {
+        message += `. Se eliminaron ${duplicatesFound} duplicado${duplicatesFound > 1 ? 's' : ''} basándose en RUT`;
+        setDuplicatesInfo(`${duplicatesFound} registro${duplicatesFound > 1 ? 's' : ''} duplicado${duplicatesFound > 1 ? 's' : ''} eliminado${duplicatesFound > 1 ? 's' : ''} (RUT repetido)`);
+      } else {
+        setDuplicatesInfo('');
+      }
+      setStatusMessage(message);
 
     } catch (error) {
       setUploadStatus('error');
       setStatusMessage((error as Error).message);
+      setDuplicatesInfo('');
     } finally {
       setIsLoading(false);
     }
@@ -312,6 +422,7 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
     setShowPreview(false);
     setPreviewData([]);
     setStatusMessage('');
+    setDuplicatesInfo('');
     setUploadStatus('idle');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -330,7 +441,7 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
           </CardTitle>
           <CardDescription className="text-indigo-100 text-base mt-2">
             Sube un archivo Excel (.xlsx, .xls) o CSV con los datos de los estudiantes.
-            Los datos se sincronizarán automáticamente con Firebase.
+            Los datos serán sanitizados y validados automáticamente antes de sincronizarse con Firebase.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
@@ -376,6 +487,15 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
             </Alert>
           )}
 
+          {duplicatesInfo && (
+            <Alert className="border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 shadow-md">
+              <AlertCircle className="h-5 w-5 text-amber-600" />
+              <AlertDescription className="text-amber-800 font-medium text-base">
+                ⚠️ {duplicatesInfo}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {uploadStatus === 'error' && (
             <Alert className="border-red-200 bg-gradient-to-r from-red-50 to-rose-50 shadow-md">
               <AlertCircle className="h-5 w-5 text-red-600" />
@@ -395,7 +515,9 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                   Vista Previa de Datos
                 </CardTitle>
                 <CardDescription className="text-blue-100 text-lg">
-                  Se encontraron {previewData.length} registros. Revisa los datos antes de importar.
+                  Se encontraron {previewData.length} registros únicos. 
+                  {duplicatesInfo && <span className="block mt-1 text-amber-200">📋 {duplicatesInfo}</span>}
+                  Revisa los datos antes de importar.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
@@ -409,8 +531,8 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">RUT</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Carrera</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Empresa</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Cargo</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Semestre</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Comuna</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Área</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Estado</th>
                         </tr>
                       </thead>
@@ -421,18 +543,14 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                             <td className="px-4 py-3 text-gray-700">{student.rut}</td>
                             <td className="px-4 py-3 text-gray-700">{student.carrera}</td>
                             <td className="px-4 py-3 text-gray-700">{student.nombreEmpresa}</td>
-                            <td className="px-4 py-3 text-gray-700">{student.cargo}</td>
-                            <td className="px-4 py-3 text-center">
-                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                {student.semestre}
-                              </Badge>
-                            </td>
+                            <td className="px-4 py-3 text-gray-700">{student.comuna}</td>
+                            <td className="px-4 py-3 text-gray-700">{student.areaEstudiante}</td>
                             <td className="px-4 py-3">
-                              <Badge className={student.evaluacionEnviada === 'Si' || student.evaluacionEnviada === 'Sí' ? 
+                              <Badge className={normalizeEvaluationStatus(student.evaluacionEnviada) ? 
                                 'bg-emerald-100 text-emerald-800 border-emerald-200' : 
                                 'bg-amber-100 text-amber-800 border-amber-200'
                               }>
-                                {student.evaluacionEnviada || 'No'}
+                                {normalizeEvaluationStatus(student.evaluacionEnviada) ? '✅ Completada' : '⏳ Pendiente'}
                               </Badge>
                             </td>
                           </tr>
@@ -450,10 +568,10 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
                         <div className="space-y-2">
                           <div className="flex justify-between items-start">
                             <h4 className="font-bold text-gray-900">{student.nombreEstudiante}</h4>
-                            <Badge className={student.evaluacionEnviada === 'Si' || student.evaluacionEnviada === 'Sí' ? 
+                            <Badge className={normalizeEvaluationStatus(student.evaluacionEnviada) ? 
                               'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                             }>
-                              {student.evaluacionEnviada || 'No'}
+                              {normalizeEvaluationStatus(student.evaluacionEnviada) ? '✅ Completada' : '⏳ Pendiente'}
                             </Badge>
                           </div>
                           <div className="text-sm text-gray-600 space-y-1">

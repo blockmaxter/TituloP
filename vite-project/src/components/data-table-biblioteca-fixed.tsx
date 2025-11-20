@@ -11,15 +11,16 @@ import { RefreshCw, Download, Upload, Database } from "lucide-react"
 const columns = [
   { Header: "NOMBRE ESTUDIANTE", accessor: "nombreEstudiante" },
   { Header: "RUT", accessor: "rut" },
-  { Header: "CARRERA", accessor: "carrera" },
   { Header: "FACULTAD", accessor: "facultad" },
+  { Header: "CARRERA", accessor: "carrera" },
   { Header: "NOMBRE EMPRESA", accessor: "nombreEmpresa" },
   { Header: "COMUNA", accessor: "comuna" },
-  { Header: "JEFE DIRECTO", accessor: "jefeDirecto" },
-  { Header: "EMAIL", accessor: "email" },
+  { Header: "SUPERVISOR DE PRACTICA", accessor: "supervisorPractica" },
+  { Header: "EMAIL ALUMNO", accessor: "emailAlumno" },
   { Header: "CARGO", accessor: "cargo" },
+  { Header: "AREA DE ESTUDIANTE", accessor: "areaEstudiante" },
   { Header: "SEMESTRE", accessor: "semestre" },
-  { Header: "AÑO PRACTICA", accessor: "anio" },
+  { Header: "AÑO PRACTICA", accessor: "anioPractica" },
   { Header: "AÑO INGRESO", accessor: "anioIngreso" },
   { Header: "EVALUACION ENVIADA", accessor: "evaluacionEnviada" },
 ] as const
@@ -28,26 +29,18 @@ interface StudentData {
   id?: string;
   nombreEstudiante: string;
   rut: string;
-  carrera: string;
   facultad: string;
+  carrera: string;
   nombreEmpresa: string;
-  jefeDirecto: string;
-  email: string;
-  emailEmpresa: string;
-  telefonoEmpresa: string;
-  cargo: string;
   comuna: string;
-  region: string;
-  direccionEmpresa: string;
+  supervisorPractica: string;
+  emailAlumno: string;
+  cargo: string;
+  areaEstudiante: string;
   semestre: string;
-  anio: string;
+  anioPractica: string;
   anioIngreso: string;
-  fechaInicio: string;
-  fechaTermino: string;
-  horasPractica: string;
   evaluacionEnviada: string;
-  supervisor: string;
-  notaPractica: string;
   fechaImportacion?: string;
 }
 

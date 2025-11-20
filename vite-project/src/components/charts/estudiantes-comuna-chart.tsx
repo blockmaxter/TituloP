@@ -15,19 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
-// Datos de estudiantes por comuna donde realizan práctica
-const estudiantesPorComuna = [
-  { comuna: "Las Condes", cantidad: 25 },
-  { comuna: "Providencia", cantidad: 22 },
-  { comuna: "Santiago", cantidad: 18 },
-  { comuna: "Ñuñoa", cantidad: 15 },
-  { comuna: "La Reina", cantidad: 12 },
-  { comuna: "Vitacura", cantidad: 10 },
-  { comuna: "Maipú", cantidad: 8 },
-  { comuna: "San Miguel", cantidad: 6 },
-  { comuna: "Otras", cantidad: 4 },
-]
+import { useFirebaseData } from "@/hooks/useFirebaseData"
 
 const chartConfig = {
   cantidad: {
@@ -37,12 +25,64 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function EstudiantesPorComunaChart() {
+  const { data, loading, error } = useFirebaseData()
+
+  // Procesar datos para obtener estudiantes por comuna
+  const estudiantesPorComuna = React.useMemo(() => {
+    if (!data || data.length === 0) return []
+    
+    const comunasCount = data.reduce((acc, student) => {
+      const comuna = student.comuna || 'Sin comuna'
+      acc[comuna] = (acc[comuna] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    return Object.entries(comunasCount)
+      .map(([comuna, cantidad]) => ({
+        comuna,
+        cantidad
+      }))
+      .sort((a, b) => b.cantidad - a.cantidad)
+      .slice(0, 10) // Mostrar solo las top 10 comunas
+  }, [data])
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Estudiantes por Comuna de Práctica</CardTitle>
+          <CardDescription>
+            Cargando datos...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[350px] flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Estudiantes por Comuna de Práctica</CardTitle>
+          <CardDescription className="text-red-600">
+            Error al cargar datos: {error}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Estudiantes por Comuna de Práctica</CardTitle>
         <CardDescription>
-          Distribución geográfica de las empresas donde realizan práctica
+          Distribución geográfica de las empresas donde realizan práctica ({data.length} total)
         </CardDescription>
       </CardHeader>
       <CardContent>

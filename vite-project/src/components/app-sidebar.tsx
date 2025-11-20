@@ -8,7 +8,6 @@ import {
   FolderIcon,
   LayoutDashboardIcon,
   ListIcon,
-  SearchIcon,
   SettingsIcon,
 } from "lucide-react"
 
@@ -108,11 +107,6 @@ const data = {
       title: "Configuración",
       url: "#",
       icon: SettingsIcon,
-    },
-    {
-      title: "Buscar",
-      url: "#",
-      icon: SearchIcon,
     },
   ],
   documents: [

@@ -63,7 +63,8 @@ export function NavDocuments({ items, onSectionChange, activeSection }: {
             return null;
           }
 
-          const sectionId = item.name.toLowerCase().replace(/\s+/g, '-');
+          const sectionId = item.name === "Formulario" ? "biblioteca-de-datos" : 
+                           item.name.toLowerCase().replace(/\s+/g, '-');
           const isActive = activeSection === sectionId;
           
           return (

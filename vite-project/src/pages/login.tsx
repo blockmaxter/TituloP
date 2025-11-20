@@ -158,7 +158,7 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              className="w-full text-gray-600 underline text-sm mt-2"
+              className="w-full text-gray-600 dark:text-gray-400 underline text-sm mt-2"
               onClick={() => setShowReset(false)}
             >
               Volver al login
@@ -191,7 +191,7 @@ export default function LoginPage() {
         
         <button
           onClick={() => setShowDiagnostic(true)}
-          className="w-full mt-4 text-xs bg-gray-100 text-gray-700 px-2 py-2 rounded hover:bg-gray-200 transition"
+          className="w-full mt-4 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition"
         >
           🔧 Diagnóstico de Conectividad
         </button>

@@ -43,7 +43,7 @@ const ROLE_CONFIG = {
   },
   [UserRole.VIEWER]: {
     label: 'Visitante',
-    color: 'bg-gray-100 text-gray-800 border-gray-200',
+    color: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-200 dark:border-gray-700',
     icon: Eye,
     description: 'Solo lectura'
   }

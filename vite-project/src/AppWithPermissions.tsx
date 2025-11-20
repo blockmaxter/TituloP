@@ -5,7 +5,6 @@ import { ResponsiveContainer, SectionHeader } from "@/components/ui/responsive-l
 import { EstudiantesPorCarreraChart } from "@/components/charts/estudiantes-carrera-chart"
 import { EvaluacionesChart } from "@/components/charts/evaluaciones-chart"
 import { PracticasTendenciaChart } from "@/components/charts/practicas-tendencia-chart"
-import { NotasPracticaChart } from "@/components/charts/notas-practica-chart"
 import { ContratacionesChart } from "@/components/charts/contrataciones-chart"
 import { EstudiantesPorComunaChart } from "@/components/charts/estudiantes-comuna-chart"
 import { EstadoPracticasChart } from "@/components/charts/estado-practicas-chart"
@@ -13,6 +12,7 @@ import { TimelinePracticasChart } from "@/components/charts/timeline-practicas-c
 import { DuracionPracticasChart } from "@/components/charts/duracion-practicas-chart"
 import { SeguimientoPracticasChart } from "@/components/charts/seguimiento-practicas-chart"
 import { useState, useEffect } from "react"
+import { useFirebaseData } from "@/hooks/useFirebaseData"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -43,6 +43,14 @@ function AppContent() {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [showLogin, setShowLogin] = useState(false);
   const { user, loading } = usePermissions();
+  const { data: studentData, loading: dataLoading } = useFirebaseData();
+
+  // Calcular métricas dinámicamente
+  const metrics = {
+    estudiantesActivos: studentData.length,
+    empresasColaboradoras: new Set(studentData.map(s => s.nombreEmpresa).filter(e => e && e.trim())).size,
+    practicasFinalizadas: studentData.filter(s => s.evaluacionEnviada === 'Si' || s.evaluacionEnviada === 'Sí').length
+  };
 
   // Intersection Observer para detectar sección activa
   useEffect(() => {
@@ -107,27 +115,21 @@ function AppContent() {
           <MetricGrid className="mb-8">
             <MetricCard
               title="Estudiantes Activos"
-              value="1,247"
+              value={dataLoading ? "..." : metrics.estudiantesActivos.toString()}
               change={+12.5}
-              description="Estudiantes con práctica en curso"
+              description="Estudiantes con práctica registrada"
             />
             <MetricCard
               title="Empresas Colaboradoras"
-              value="89"
+              value={dataLoading ? "..." : metrics.empresasColaboradoras.toString()}
               change={+8.2}
               description="Empresas con convenio activo"
             />
             <MetricCard
               title="Prácticas Finalizadas"
-              value="342"
+              value={dataLoading ? "..." : metrics.practicasFinalizadas.toString()}
               change={+15.3}
-              description="Prácticas completadas este semestre"
-            />
-            <MetricCard
-              title="Nota Promedio"
-              value="6.2"
-              change={+2.1}
-              description="Calificación promedio de prácticas"
+              description="Prácticas con evaluación enviada"
             />
           </MetricGrid>
 
@@ -137,9 +139,8 @@ function AppContent() {
           </div>
 
           <ProtectedRoute requiredPermissions={[Permission.VIEW_DETAILED_ANALYTICS]} fallback={null}>
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-1 gap-6">
               <PracticasTendenciaChart />
-              <NotasPracticaChart />
             </div>
           </ProtectedRoute>
         </ResponsiveContainer>

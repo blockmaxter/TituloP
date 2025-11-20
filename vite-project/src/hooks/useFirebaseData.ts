@@ -6,26 +6,18 @@ interface StudentData {
   id?: string;
   nombreEstudiante: string;
   rut: string;
-  carrera: string;
   facultad: string;
+  carrera: string;
   nombreEmpresa: string;
-  jefeDirecto: string;
-  email: string;
-  emailEmpresa: string;
-  telefonoEmpresa: string;
-  cargo: string;
   comuna: string;
-  region: string;
-  direccionEmpresa: string;
+  supervisorPractica: string;
+  emailAlumno: string;
+  cargo: string;
+  areaEstudiante: string;
   semestre: string;
-  anio: string;
+  anioPractica: string;
   anioIngreso: string;
-  fechaInicio: string;
-  fechaTermino: string;
-  horasPractica: string;
   evaluacionEnviada: string;
-  supervisor: string;
-  notaPractica: string;
   fechaImportacion?: string;
 }
 
