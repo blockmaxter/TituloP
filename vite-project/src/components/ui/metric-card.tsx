@@ -97,7 +97,7 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, children }: StatusBadgeProps) {
   const getStatusStyles = () => {
-    switch (variant) {
+    switch (status) {
       case 'success':
         return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-200 dark:border-green-800';
       case 'warning':
