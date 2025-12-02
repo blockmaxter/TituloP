@@ -97,7 +97,11 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
         
         // Sincronizar el tema si es diferente del actual
         if (userData.preferences?.theme && userData.preferences.theme !== theme) {
-          setTheme(userData.preferences.theme);
+          // Filtrar 'system' ya que no es un tema válido
+          const validTheme = userData.preferences.theme === 'system' ? 'light' : userData.preferences.theme as Theme;
+          if (validTheme === 'light' || validTheme === 'dark') {
+            setTheme(validTheme);
+          }
         }
       } else {
         // Si no existen configuraciones, usar los datos del usuario
