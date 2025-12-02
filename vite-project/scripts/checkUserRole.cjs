@@ -51,8 +51,8 @@ async function checkUserRole(userEmail) {
     console.log(`📅 Creado: ${userData.createdAt?.toDate?.() || 'N/A'}`);
     console.log(`🔄 Actualizado: ${userData.updatedAt?.toDate?.() || 'N/A'}`);
     
-    if (userData.role === 'super_admin') {
-      console.log('🎉 ¡El usuario tiene privilegios de SUPER_ADMIN!');
+    if (userData.role === 'admin') {
+      console.log('🎉 ¡El usuario tiene privilegios de ADMIN!');
     }
     
     return true;

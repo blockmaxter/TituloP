@@ -2,7 +2,7 @@ import React from 'react';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { UserRole } from '@/types/permissions';
 import { Badge } from '@/components/ui/badge';
-import { Shield, ShieldCheck, ShieldX, Crown, User, Users, Eye, GraduationCap, BookOpen } from 'lucide-react';
+import { Shield, ShieldCheck, ShieldX, User, Eye, GraduationCap, BookOpen } from 'lucide-react';
 
 interface RoleBadgeProps {
   className?: string;
@@ -11,23 +11,11 @@ interface RoleBadgeProps {
 }
 
 const ROLE_CONFIG = {
-  [UserRole.SUPER_ADMIN]: {
-    label: 'Super Admin',
-    color: 'bg-purple-100 text-purple-800 border-purple-200',
-    icon: Crown,
-    description: 'Acceso completo al sistema'
-  },
   [UserRole.ADMIN]: {
     label: 'Administrador',
     color: 'bg-red-100 text-red-800 border-red-200',
     icon: ShieldCheck,
     description: 'Gestión administrativa completa'
-  },
-  [UserRole.COORDINATOR]: {
-    label: 'Coordinador',
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
-    icon: Users,
-    description: 'Coordinación de prácticas y estudiantes'
   },
   [UserRole.PROFESSOR]: {
     label: 'Profesor',

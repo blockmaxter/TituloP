@@ -50,7 +50,7 @@ export const FirebaseDiagnostic: React.FC = () => {
       }
 
       // Test 2: Permisos de gestión
-      if (currentUser.permissions.includes(Permission.MANAGE_USERS) || currentUser.role === UserRole.SUPER_ADMIN) {
+      if (currentUser.permissions.includes(Permission.MANAGE_USERS) || currentUser.role === UserRole.ADMIN) {
         addResult('Permisos', 'success', '✅ Tiene permisos para gestionar usuarios');
       } else {
         addResult('Permisos', 'warning', `⚠️ Rol actual (${currentUser.role}) podría no tener permisos suficientes`);

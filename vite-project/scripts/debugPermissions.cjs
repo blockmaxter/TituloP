@@ -16,27 +16,13 @@ const db = getFirestore(app);
 
 // Mapeo de roles a permisos desde el código
 const ROLE_PERMISSIONS = {
-  'super_admin': [
+  'admin': [
+    // Todos los permisos para el administrador
     'view_dashboard', 'view_analytics', 'view_detailed_analytics',
     'view_data_library', 'import_data', 'export_data', 'edit_data', 'delete_data',
     'view_lifecycle', 'manage_lifecycle', 'manage_users', 'manage_roles',
     'view_user_list', 'manage_settings', 'view_settings', 'generate_reports',
     'view_reports', 'create_evaluations', 'view_evaluations', 'edit_evaluations',
-    'approve_practices', 'manage_practices', 'view_practices'
-  ],
-  'admin': [
-    'view_dashboard', 'view_analytics', 'view_detailed_analytics',
-    'view_data_library', 'import_data', 'export_data', 'edit_data', 'delete_data',
-    'view_lifecycle', 'manage_lifecycle', 'manage_users', 'view_user_list',
-    'manage_settings', 'view_settings', 'generate_reports', 'view_reports',
-    'create_evaluations', 'view_evaluations', 'edit_evaluations',
-    'approve_practices', 'manage_practices', 'view_practices'
-  ],
-  'coordinator': [
-    'view_dashboard', 'view_analytics', 'view_data_library', 'import_data',
-    'export_data', 'edit_data', 'view_lifecycle', 'manage_lifecycle',
-    'view_user_list', 'view_settings', 'generate_reports', 'view_reports',
-    'create_evaluations', 'view_evaluations', 'edit_evaluations',
     'approve_practices', 'manage_practices', 'view_practices'
   ],
   'professor': [

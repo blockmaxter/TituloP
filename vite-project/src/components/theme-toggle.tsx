@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Sun, Monitor } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,10 +23,8 @@ export function ThemeToggle() {
         return <Sun className="h-4 w-4" />;
       case 'dark':
         return <Moon className="h-4 w-4" />;
-      case 'system':
-        return <Monitor className="h-4 w-4" />;
       default:
-        return <Monitor className="h-4 w-4" />;
+        return <Sun className="h-4 w-4" />;
     }
   };
 
@@ -36,10 +34,8 @@ export function ThemeToggle() {
         return 'Claro';
       case 'dark':
         return 'Oscuro';
-      case 'system':
-        return 'Sistema';
       default:
-        return 'Sistema';
+        return 'Claro';
     }
   };
 
@@ -69,14 +65,6 @@ export function ThemeToggle() {
               <Moon className="h-4 w-4" />
               <span>Oscuro</span>
               {theme === 'dark' && <span className="ml-auto">✓</span>}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setTheme('system')}
-              className="flex items-center gap-2"
-            >
-              <Monitor className="h-4 w-4" />
-              <span>Sistema</span>
-              {theme === 'system' && <span className="ml-auto">✓</span>}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

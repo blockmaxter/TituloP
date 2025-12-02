@@ -38,11 +38,11 @@ async function promoteToSuperAdmin(userEmail) {
     const userRef = doc(db, 'users', userDoc.id);
     
     await updateDoc(userRef, {
-      role: UserRole.SUPER_ADMIN,
+      role: UserRole.ADMIN,
       updatedAt: new Date()
     });
     
-    console.log('✅ ¡Éxito! Usuario promovido a SUPER_ADMIN');
+    console.log('✅ ¡Éxito! Usuario promovido a ADMIN');
     console.log(`👤 Usuario: ${userDoc.data().displayName || userEmail}`);
     console.log(`🆔 UID: ${userDoc.id}`);
     console.log('🔄 El usuario debe refrescar la página para ver los cambios');

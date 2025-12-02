@@ -64,23 +64,23 @@ async function grantSuperAdmin(userEmail) {
     console.log(`   - UID: ${userId}`);
     console.log('');
     
-    // Actualizar el rol a SUPER_ADMIN
-    console.log('🔄 Actualizando rol a SUPER_ADMIN...');
+    // Actualizar el rol a ADMIN
+    console.log('🔄 Actualizando rol a ADMIN...');
     const userRef = doc(db, 'users', userId);
     
     await updateDoc(userRef, {
-      role: 'super_admin',
+      role: 'admin',
       isActive: true, // Asegurar que el usuario esté activo
       updatedAt: new Date()
     });
     
     console.log('');
-    console.log('✅ ¡ÉXITO! Privilegios de SUPER_ADMIN otorgados correctamente');
+    console.log('✅ ¡ÉXITO! Privilegios de ADMIN otorgados correctamente');
     console.log('');
     console.log('📋 Nueva configuración del usuario:');
     console.log(`   - Nombre: ${userData.displayName || 'Sin nombre'}`);
     console.log(`   - Email: ${userData.email}`);
-    console.log(`   - Rol: SUPER_ADMIN`);
+    console.log(`   - Rol: ADMIN`);
     console.log(`   - Estado: Activo`);
     console.log('');
     console.log('🔐 Permisos otorgados:');

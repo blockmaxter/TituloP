@@ -1,4 +1,4 @@
-// Script para asignar SUPER_ADMIN directamente en Firestore
+// Script para asignar ADMIN directamente en Firestore
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { UserRole } from '../src/types/permissions.js';
@@ -16,9 +16,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function makeSuperAdmin(userEmail) {
+async function makeAdmin(userEmail) {
   try {
-    console.log(`🔐 Asignando SUPER_ADMIN a: ${userEmail}`);
+    console.log(`🔐 Asignando ADMIN a: ${userEmail}`);
     
     // Nota: Necesitarás el UID del usuario, no solo el email
     // El UID se obtiene cuando el usuario se autentica por primera vez
@@ -29,11 +29,11 @@ async function makeSuperAdmin(userEmail) {
     const userRef = doc(db, 'users', userId);
     
     await updateDoc(userRef, {
-      role: UserRole.SUPER_ADMIN,
+      role: UserRole.ADMIN,
       updatedAt: new Date()
     });
     
-    console.log('✅ SUPER_ADMIN asignado exitosamente!');
+    console.log('✅ ADMIN asignado exitosamente!');
     
   } catch (error) {
     console.error('❌ Error:', error);
@@ -47,13 +47,13 @@ async function makeSuperAdmin(userEmail) {
         email: userEmail,
         displayName: userEmail.split('@')[0],
         photoURL: '',
-        role: UserRole.SUPER_ADMIN,
+        role: UserRole.ADMIN,
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date()
       });
       
-      console.log('✅ Usuario creado como SUPER_ADMIN!');
+      console.log('✅ Usuario creado como ADMIN!');
     }
   }
 }
@@ -61,7 +61,7 @@ async function makeSuperAdmin(userEmail) {
 // Uso del script
 const email = process.argv[2];
 if (email) {
-  makeSuperAdmin(email);
+  makeAdmin(email);
 } else {
-  console.log('📧 Uso: node makeSuperAdmin.js email@ejemplo.com');
+  console.log('📧 Uso: node makeAdmin.js email@ejemplo.com');
 }

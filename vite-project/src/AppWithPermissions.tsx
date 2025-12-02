@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/sidebar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollProgress } from "@/components/scroll-progress"
-import { FloatingNav } from "@/components/floating-nav"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { RoleBadge } from "@/components/UserPermissionIndicators"
 import { UserManagement } from "@/components/admin/UserManagement"
@@ -312,11 +311,6 @@ function AppContent() {
             {renderAnaliticaSection()}
             {renderAdminSection()}
           </div>
-          
-          <FloatingNav 
-            activeSection={activeSection}
-            onSectionChange={scrollToSection}
-          />
         </SidebarInset>
       </SidebarProvider>
     </>

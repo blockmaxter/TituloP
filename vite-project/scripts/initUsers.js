@@ -23,15 +23,7 @@ const initialUsers = [
     email: 'admin@utem.cl',
     displayName: 'Administrador Sistema',
     photoURL: '',
-    role: UserRole.SUPER_ADMIN,
-    isActive: true
-  },
-  {
-    uid: 'coord-001', 
-    email: 'coordinador@utem.cl',
-    displayName: 'Coordinador Prácticas',
-    photoURL: '',
-    role: UserRole.COORDINATOR,
+    role: UserRole.ADMIN,
     isActive: true
   },
   {

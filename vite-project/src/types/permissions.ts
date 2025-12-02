@@ -1,8 +1,6 @@
 // Tipos de roles disponibles en el sistema
 export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
   ADMIN = 'admin',
-  COORDINATOR = 'coordinator',
   PROFESSOR = 'professor',
   STUDENT = 'student',
   VIEWER = 'viewer'
@@ -52,55 +50,9 @@ export enum Permission {
 
 // Mapeo de roles a permisos
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
-  [UserRole.SUPER_ADMIN]: [
-    // Todos los permisos
-    ...Object.values(Permission)
-  ],
-  
   [UserRole.ADMIN]: [
-    Permission.VIEW_DASHBOARD,
-    Permission.VIEW_ANALYTICS,
-    Permission.VIEW_DETAILED_ANALYTICS,
-    Permission.VIEW_DATA_LIBRARY,
-    Permission.IMPORT_DATA,
-    Permission.EXPORT_DATA,
-    Permission.EDIT_DATA,
-    Permission.DELETE_DATA,
-    Permission.VIEW_LIFECYCLE,
-    Permission.MANAGE_LIFECYCLE,
-    Permission.MANAGE_USERS,
-    Permission.VIEW_USER_LIST,
-    Permission.MANAGE_SETTINGS,
-    Permission.VIEW_SETTINGS,
-    Permission.GENERATE_REPORTS,
-    Permission.VIEW_REPORTS,
-    Permission.CREATE_EVALUATIONS,
-    Permission.VIEW_EVALUATIONS,
-    Permission.EDIT_EVALUATIONS,
-    Permission.APPROVE_PRACTICES,
-    Permission.MANAGE_PRACTICES,
-    Permission.VIEW_PRACTICES
-  ],
-  
-  [UserRole.COORDINATOR]: [
-    Permission.VIEW_DASHBOARD,
-    Permission.VIEW_ANALYTICS,
-    Permission.VIEW_DATA_LIBRARY,
-    Permission.IMPORT_DATA,
-    Permission.EXPORT_DATA,
-    Permission.EDIT_DATA,
-    Permission.VIEW_LIFECYCLE,
-    Permission.MANAGE_LIFECYCLE,
-    Permission.VIEW_USER_LIST,
-    Permission.VIEW_SETTINGS,
-    Permission.GENERATE_REPORTS,
-    Permission.VIEW_REPORTS,
-    Permission.CREATE_EVALUATIONS,
-    Permission.VIEW_EVALUATIONS,
-    Permission.EDIT_EVALUATIONS,
-    Permission.APPROVE_PRACTICES,
-    Permission.MANAGE_PRACTICES,
-    Permission.VIEW_PRACTICES
+    // Todos los permisos para el administrador
+    ...Object.values(Permission)
   ],
   
   [UserRole.PROFESSOR]: [

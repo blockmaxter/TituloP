@@ -30,7 +30,6 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { ScrollProgress } from "@/components/scroll-progress"
-import { FloatingNav } from "@/components/floating-nav"
 import { ProtectedRoute } from "@/components/ProtectedRoute"
 import { RoleBadge, PermissionIndicator } from "@/components/UserPermissionIndicators"
 import { UserManagement } from "@/components/admin/UserManagement"
@@ -601,10 +600,6 @@ export default function App() {
           {renderCicloVidaSection()}
           {renderAnaliticaSection()}
         </div>
-        <FloatingNav 
-          activeSection={activeSection}
-          onSectionChange={scrollToSection}
-        />
       </SidebarInset>
     </SidebarProvider>
     </>

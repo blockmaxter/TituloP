@@ -308,11 +308,11 @@ export function DataTableBiblioteca() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-6 lg:px-6 lg:py-8 space-y-6">
         
         {/* Header mejorado */}
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-white via-blue-50 to-indigo-100">
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-white via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
           <CardHeader className="pb-8 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white rounded-t-lg">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
@@ -377,7 +377,7 @@ export function DataTableBiblioteca() {
         )}
 
         {/* Barra de búsqueda y controles */}
-        <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+        <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
               {/* Buscador */}
@@ -474,7 +474,7 @@ export function DataTableBiblioteca() {
         <Card className="shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
           <CardContent className="p-0">
             {totalItems === 0 ? (
-              <div className="text-center py-20 bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg">
+              <div className="text-center py-20 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-lg">
                 <div className="flex flex-col items-center gap-6">
                   {searchTerm ? (
                     <>
@@ -532,14 +532,14 @@ export function DataTableBiblioteca() {
                       </thead>
                       <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-700">
                         {currentData.map((row, idx) => (
-                          <tr key={row.id || idx} className="hover:bg-blue-50/50 transition-all duration-200 group">
+                          <tr key={row.id || idx} className="hover:bg-blue-50/50 dark:hover:bg-gray-700/50 transition-all duration-200 group">
                             {columns.map((col) => (
                               <td key={col.accessor} className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100 group-hover:text-blue-900 dark:group-hover:text-blue-300 transition-colors">
                                 {col.accessor === 'evaluacionEnviada' ? (
                                   <Badge 
                                     className={row[col.accessor] === 'Sí' || row[col.accessor] === 'Si' ? 
-                                      'bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-200 shadow-sm' : 
-                                      'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200 shadow-sm'
+                                      'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-700 hover:bg-emerald-200 dark:hover:bg-emerald-800 shadow-sm' : 
+                                      'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-800 shadow-sm'
                                     }
                                   >
                                     {row[col.accessor] || 'No'}
@@ -569,7 +569,7 @@ export function DataTableBiblioteca() {
                                       variant="outline"
                                       size="sm"
                                       onClick={() => handleViewStudent(row)}
-                                      className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 hover:border-green-300"
+                                      className="h-8 w-8 p-0 hover:bg-green-50 dark:hover:bg-green-900 hover:text-green-600 dark:hover:text-green-400 hover:border-green-300 dark:hover:border-green-600"
                                       title="Ver detalle"
                                     >
                                       <Eye className="h-4 w-4" />
@@ -578,7 +578,7 @@ export function DataTableBiblioteca() {
                                       variant="outline"
                                       size="sm"
                                       onClick={() => handleEditStudent(row)}
-                                      className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                                      className="h-8 w-8 p-0 hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-600"
                                       title="Editar"
                                     >
                                       <Edit className="h-4 w-4" />
@@ -587,7 +587,7 @@ export function DataTableBiblioteca() {
                                       variant="outline"
                                       size="sm"
                                       onClick={() => handleDeleteStudent(row)}
-                                      className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
+                                      className="h-8 w-8 p-0 hover:bg-red-50 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-600"
                                       title="Eliminar"
                                     >
                                       <Trash2 className="h-4 w-4" />
@@ -610,7 +610,7 @@ export function DataTableBiblioteca() {
                 {/* Vista de cards para tablets y móviles */}
                 <div className="xl:hidden grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                   {currentData.map((row, idx) => (
-                    <Card key={row.id || idx} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 overflow-hidden">
+                    <Card key={row.id || idx} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-gray-700 overflow-hidden">
                       {/* Header del card */}
                       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
                         <div className="flex justify-between items-start gap-4">
@@ -732,7 +732,7 @@ export function DataTableBiblioteca() {
 
         {/* Controles de paginación inferior */}
         {totalPages > 1 && (
-          <Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+          <Card className="shadow-lg border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm">
             <CardContent className="p-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-sm text-gray-600">
@@ -839,8 +839,8 @@ export function DataTableBiblioteca() {
                   <div className="text-right">
                     <Badge 
                       className={normalizeEvaluationStatus(studentToView.evaluacionEnviada) ? 
-                        'bg-emerald-100 text-emerald-800 border-emerald-200 px-4 py-2 text-lg font-semibold' : 
-                        'bg-amber-100 text-amber-800 border-amber-200 px-4 py-2 text-lg font-semibold'
+                        'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-700 px-4 py-2 text-lg font-semibold' : 
+                        'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-700 px-4 py-2 text-lg font-semibold'
                       }
                     >
                       {normalizeEvaluationStatus(studentToView.evaluacionEnviada) 

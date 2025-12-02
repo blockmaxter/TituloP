@@ -41,18 +41,14 @@ import {
 } from 'lucide-react';
 
 const ROLE_LABELS = {
-  [UserRole.SUPER_ADMIN]: 'Super Admin',
   [UserRole.ADMIN]: 'Administrador',
-  [UserRole.COORDINATOR]: 'Coordinador',
   [UserRole.PROFESSOR]: 'Profesor',
   [UserRole.STUDENT]: 'Estudiante',
   [UserRole.VIEWER]: 'Visitante'
 };
 
 const ROLE_COLORS = {
-  [UserRole.SUPER_ADMIN]: 'bg-purple-100 text-purple-800 border-purple-200',
   [UserRole.ADMIN]: 'bg-red-100 text-red-800 border-red-200',
-  [UserRole.COORDINATOR]: 'bg-blue-100 text-blue-800 border-blue-200',
   [UserRole.PROFESSOR]: 'bg-green-100 text-green-800 border-green-200',
   [UserRole.STUDENT]: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   [UserRole.VIEWER]: 'bg-gray-100 text-gray-800 border-gray-200'

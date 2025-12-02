@@ -45,9 +45,7 @@ export const UserProfileDialog: React.FC<UserProfileDialogProps> = ({
   // Función para formatear el rol
   const formatRole = (role: UserRole): string => {
     const roleLabels: Record<UserRole, string> = {
-      [UserRole.SUPER_ADMIN]: "Super Administrador",
       [UserRole.ADMIN]: "Administrador",
-      [UserRole.COORDINATOR]: "Coordinador",
       [UserRole.PROFESSOR]: "Profesor",
       [UserRole.STUDENT]: "Estudiante",
       [UserRole.VIEWER]: "Visitante",
@@ -58,9 +56,7 @@ export const UserProfileDialog: React.FC<UserProfileDialogProps> = ({
   // Función para obtener el color del rol
   const getRoleColor = (role: UserRole): string => {
     const colors: Record<UserRole, string> = {
-      [UserRole.SUPER_ADMIN]: "destructive",
       [UserRole.ADMIN]: "destructive",
-      [UserRole.COORDINATOR]: "default",
       [UserRole.PROFESSOR]: "secondary",
       [UserRole.STUDENT]: "outline",
       [UserRole.VIEWER]: "outline",
