@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts"
 import {
   Card,
   CardContent,
@@ -17,10 +17,21 @@ import {
 } from "@/components/ui/chart"
 import { useFirebaseData } from "@/hooks/useFirebaseData"
 
+// Paleta de colores vibrantes que funcionan bien en modo claro y oscuro
+const COLORS = [
+  "hsl(210, 100%, 56%)", // Azul brillante
+  "hsl(142, 76%, 36%)",  // Verde
+  "hsl(262, 83%, 58%)",  // Púrpura
+  "hsl(346, 87%, 43%)",  // Rojo/Rosa
+  "hsl(31, 81%, 56%)",   // Naranja
+  "hsl(199, 89%, 48%)",  // Cian
+  "hsl(48, 96%, 53%)",   // Amarillo
+  "hsl(283, 39%, 53%)",  // Lavanda
+]
+
 const chartConfig = {
   cantidad: {
     label: "Estudiantes",
-    color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
 
@@ -44,7 +55,7 @@ export function EstudiantesPorCarreraChart() {
                 carrera === '21049' ? 'Ing. Civil Computación' : 
                 carrera,
         cantidad,
-        color: `hsl(var(--chart-${(index % 5) + 1}))`
+        fill: COLORS[index % COLORS.length] // Asignar color único a cada carrera
       }))
       .sort((a, b) => b.cantidad - a.cantidad)
   }, [data])
@@ -92,24 +103,28 @@ export function EstudiantesPorCarreraChart() {
         <ChartContainer config={chartConfig}>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={estudiantesPorCarrera} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
               <XAxis 
                 dataKey="carrera" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: 'currentColor' }}
+                className="text-foreground"
                 angle={-45}
                 textAnchor="end"
                 height={80}
               />
-              <YAxis />
+              <YAxis tick={{ fill: 'currentColor' }} className="text-foreground" />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent />}
               />
               <Bar 
                 dataKey="cantidad" 
-                fill="var(--color-cantidad)"
                 radius={[4, 4, 0, 0]}
-              />
+              >
+                {estudiantesPorCarrera.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

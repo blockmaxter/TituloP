@@ -40,7 +40,7 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Función para sanitizar texto
+  // Función para sanitizar texto y convertir acentos a versión simple
   const sanitizeText = (text: string | null | undefined): string => {
     if (!text) return '';
     
@@ -49,6 +49,11 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
       .trim()
       // Normalizar espacios múltiples a un solo espacio
       .replace(/\s+/g, ' ')
+      // Convertir caracteres acentuados a su versión simple
+      .normalize('NFD') // Descompone caracteres combinados
+      .replace(/[\u0300-\u036f]/g, '') // Remueve diacríticos (tildes, acentos, etc.)
+      .replace(/[ñÑ]/g, (match) => match === 'ñ' ? 'n' : 'N') // Ñ y ñ específicamente
+      .replace(/[çÇ]/g, (match) => match === 'ç' ? 'c' : 'C') // Ç y ç
       // Remover caracteres de control y caracteres especiales peligrosos
       .replace(/[\x00-\x1F\x7F]/g, '')
       // Remover caracteres que pueden causar problemas en bases de datos
@@ -59,9 +64,10 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
       .replace(/[\u2000-\u200F\u2028-\u202F\u205F-\u206F]/g, ' ')
       // Normalizar saltos de línea
       .replace(/\r?\n/g, ' ')
-      // Normalizar comillas tipográficas
+      // Normalizar comillas tipográficas a versión simple
       .replace(/[""]/g, '"')
       .replace(/['']/g, "'")
+      .replace(/[–—]/g, '-') // Guiones largos -> guion normal
       // Limitar longitud máxima por seguridad
       .substring(0, 500)
       // Trim final
@@ -233,43 +239,158 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
 
   const processCSVFile = (file: File): Promise<StudentData[]> => {
     return new Promise((resolve, reject) => {
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        delimiter: ';', // El CSV usa punto y coma como separador
-        complete: (results) => {
-          try {
-            const processedData: StudentData[] = results.data.map((row: any) => {
-              // Crear objeto raw con los datos del CSV
-              const rawStudent = {
-                nombreEstudiante: row['NOMBRE ESTUDIANTE'] || '',
-                rut: row['RUT'] || '',
-                facultad: row['FACULTAD'] || '',
-                carrera: row['CARRERA'] || '',
-                nombreEmpresa: row['NOMBRE EMPRESA'] || '',
-                comuna: row['COMUNA'] || '',
-                supervisorPractica: row['SUPERVISOR DE PRACTICA'] || '',
-                emailAlumno: row['EMAIL alumno'] || '',
-                cargo: row['CARGO'] || '',
-                areaEstudiante: row['AREA DE ESTUDIANTE'] || '',
-                semestre: row['SEMESTRE'] || '',
-                anioPractica: row['AÑO PRACTICA'] || '',
-                anioIngreso: row['AÑO INGRESO'] || '',
-                evaluacionEnviada: normalizeForSave(row['EVALUACION\nENVIADA'] || row['EVALUACION ENVIADA'])
-              };
+      // Función auxiliar para detectar y convertir encoding
+      const readFileWithEncoding = (file: File, encoding: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const result = e.target?.result as string;
+            resolve(result);
+          };
+          reader.onerror = () => reject(new Error(`Error al leer archivo con encoding ${encoding}`));
+          reader.readAsText(file, encoding);
+        });
+      };
 
-              // Aplicar sanitización
-              return sanitizeStudentData(rawStudent);
-            });
-            resolve(processedData);
-          } catch (error) {
-            reject(new Error('Error al procesar el archivo CSV: ' + (error as Error).message));
-          }
-        },
-        error: (error) => {
-          reject(new Error('Error al parsear CSV: ' + error.message));
+      // Función para convertir caracteres acentuados a su versión simple
+      const normalizeSpecialCharacters = (text: string): string => {
+        if (!text) return '';
+        
+        // Primero, arreglar caracteres mal codificados comunes
+        const malEncodedReplacements: { [key: string]: string } = {
+          // Caracteres mal codificados de UTF-8 doble codificación
+          '\u00C3\u00A1': 'a', // Ã¡ -> a
+          '\u00C3\u00A9': 'e', // Ã© -> e
+          '\u00C3\u00AD': 'i', // Ã­ -> i
+          '\u00C3\u00B3': 'o', // Ã³ -> o
+          '\u00C3\u00BA': 'u', // Ãº -> u
+          '\u00C3\u00A0': 'a', // Ã  -> a
+          '\u00C3\u00A8': 'e', // Ã¨ -> e
+          '\u00C3\u00AC': 'i', // Ã¬ -> i
+          '\u00C3\u00B2': 'o', // Ã² -> o
+          '\u00C3\u00B9': 'u', // Ã¹ -> u
+          '\u00C3\u00B1': 'n', // Ã± -> n
+          '\u00C3\u00BC': 'u', // Ã¼ -> u
+          '\u00C3\u00B6': 'o', // Ã¶ -> o
+          '\u00C3\u00A4': 'a', // Ã¤ -> a
+          // Mayúsculas mal codificadas
+          '\u00C3\u0089': 'E', // ÃÉ -> E
+          '\u00C3\u008D': 'I', // ÃÍ -> I
+          '\u00C3\u0093': 'O', // ÃÓ -> O
+          '\u00C3\u009A': 'U', // ÃÚ -> U
+          '\u00C3\u0091': 'N', // ÃÑ -> N
+          '\u00C3\u009C': 'U', // ÃÜ -> U
+          '\u00C3\u0096': 'O', // ÃÖ -> O
+          '\u00C3\u0084': 'A', // ÃÄ -> A
+          // Caracteres de reemplazo común
+          '\uFFFD': '', // � -> (vacío)
+          // Otros caracteres fantasma comunes
+          '\u00C2': '', // Â -> (vacío)
+        };
+
+        // Aplicar correcciones de caracteres mal codificados
+        let normalized = text;
+        for (const [wrong, correct] of Object.entries(malEncodedReplacements)) {
+          normalized = normalized.replace(new RegExp(wrong, 'g'), correct);
         }
-      });
+
+        // Convertir TODOS los caracteres acentuados a su versión simple
+        // Usar normalize para descomponer los caracteres y luego remover diacríticos
+        normalized = normalized
+          .normalize('NFD') // Descompone caracteres combinados
+          .replace(/[\u0300-\u036f]/g, '') // Remueve diacríticos (tildes, acentos, etc.)
+          .replace(/[ñÑ]/g, (match) => match === 'ñ' ? 'n' : 'N') // Ñ y ñ específicamente
+          .replace(/[çÇ]/g, (match) => match === 'ç' ? 'c' : 'C') // Ç y ç
+          .replace(/[æÆ]/g, (match) => match === 'æ' ? 'ae' : 'AE') // æ y Æ
+          .replace(/[øØ]/g, (match) => match === 'ø' ? 'o' : 'O') // ø y Ø
+          .replace(/[åÅ]/g, (match) => match === 'å' ? 'a' : 'A') // å y Å
+          .replace(/[ßß]/g, 'ss') // ß alemana
+          .replace(/[ðÐ]/g, (match) => match === 'ð' ? 'd' : 'D') // ð islandesa
+          .replace(/[þÞ]/g, (match) => match === 'þ' ? 'th' : 'TH') // þ islandesa
+          // Limpiar caracteres especiales de comillas y guiones
+          .replace(/[""]/g, '"') // Comillas tipográficas -> comillas normales
+          .replace(/['']/g, "'") // Apostrofes tipográficos -> apostrofe normal
+          .replace(/[–—]/g, '-') // Guiones largos -> guion normal
+          // Remover cualquier carácter de control restante
+          .replace(/[\x00-\x1F\x7F]/g, '');
+
+        return normalized;
+      };
+
+      // Intentar leer con diferentes encodings
+      const tryEncodings = async () => {
+        const encodings = ['UTF-8', 'ISO-8859-1', 'windows-1252'];
+        
+        for (const encoding of encodings) {
+          try {
+            const content = await readFileWithEncoding(file, encoding);
+            
+            // Verificar si hay caracteres de reemplazo (�) que indican mal encoding
+            if (content.includes('�') && encoding !== 'windows-1252') {
+              continue;
+            }
+
+            // Normalizar caracteres especiales
+            const normalizedContent = normalizeSpecialCharacters(content);
+            
+            // Parsear el contenido normalizado directamente
+            Papa.parse(normalizedContent, {
+              header: true,
+              skipEmptyLines: true,
+              delimiter: ';', // El CSV usa punto y coma como separador
+              complete: (results) => {
+                try {
+                  const processedData: StudentData[] = results.data.map((row: any) => {
+                    // Aplicar normalización adicional a cada campo
+                    const normalizedRow: any = {};
+                    for (const [key, value] of Object.entries(row)) {
+                      normalizedRow[key] = normalizeSpecialCharacters(String(value || ''));
+                    }
+
+                    // Crear objeto raw con los datos del CSV
+                    const rawStudent = {
+                      nombreEstudiante: normalizedRow['NOMBRE ESTUDIANTE'] || '',
+                      rut: normalizedRow['RUT'] || '',
+                      facultad: normalizedRow['FACULTAD'] || '',
+                      carrera: normalizedRow['CARRERA'] || '',
+                      nombreEmpresa: normalizedRow['NOMBRE EMPRESA'] || '',
+                      comuna: normalizedRow['COMUNA'] || '',
+                      supervisorPractica: normalizedRow['SUPERVISOR DE PRACTICA'] || '',
+                      emailAlumno: normalizedRow['EMAIL alumno'] || '',
+                      cargo: normalizedRow['CARGO'] || '',
+                      areaEstudiante: normalizedRow['AREA DE ESTUDIANTE'] || '',
+                      semestre: normalizedRow['SEMESTRE'] || '',
+                      anioPractica: normalizedRow['AÑO PRACTICA'] || '',
+                      anioIngreso: normalizedRow['AÑO INGRESO'] || '',
+                      evaluacionEnviada: normalizeForSave(normalizedRow['EVALUACION\nENVIADA'] || normalizedRow['EVALUACION ENVIADA'])
+                    };
+
+                    // Aplicar sanitización
+                    return sanitizeStudentData(rawStudent);
+                  });
+                  
+                  console.log(`CSV procesado exitosamente con encoding: ${encoding}`);
+                  resolve(processedData);
+                } catch (error) {
+                  reject(new Error('Error al procesar el archivo CSV: ' + (error as Error).message));
+                }
+              },
+              error: (error) => {
+                reject(new Error('Error al parsear CSV: ' + error.message));
+              }
+            });
+            
+            return; // Salir del bucle si fue exitoso
+          } catch (error) {
+            console.warn(`Falló encoding ${encoding}:`, error);
+            continue;
+          }
+        }
+        
+        reject(new Error('No se pudo determinar la codificación correcta del archivo CSV'));
+      };
+
+      tryEncodings().catch(reject);
     });
   };
 
@@ -441,7 +562,8 @@ export function FileImporter({ onDataImported }: FileImporterProps) {
           </CardTitle>
           <CardDescription className="text-indigo-100 text-base mt-2">
             Sube un archivo Excel (.xlsx, .xls) o CSV con los datos de los estudiantes.
-            Los datos serán sanitizados y validados automáticamente antes de sincronizarse con Firebase.
+            Los caracteres acentuados (á, é, í, ó, ú, ñ, etc.) se convertirán automáticamente a su versión simple (a, e, i, o, u, n).
+            Los datos serán sanitizados y validados antes de sincronizarse con Firebase.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 space-y-6">

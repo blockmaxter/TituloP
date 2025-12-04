@@ -1,0 +1,1 @@
+// Archivo eliminado - Sistema de inactividad de sesión removido
